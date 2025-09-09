@@ -1,0 +1,45 @@
+/* Default Light Theme */
+:root {
+  --bg-color: #ffffff;
+  --text-color: #000000;
+  --card-bg: #f8f9fa;
+}
+
+/* Light Theme */
+[data-theme="light"] {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+[data-theme="light"] .card {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  --bg-color: #181818;
+  --text-color: #ffffff;
+  --card-bg: #242424;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+[data-theme="dark"] .card {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+}
+
+/* Blue Theme */
+[data-theme="blue"] {
+  --bg-color: #eaf3ff;
+  --text-color: #003366;
+  --card-bg: #d0e6ff;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+[data-theme="blue"] .card {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+}
