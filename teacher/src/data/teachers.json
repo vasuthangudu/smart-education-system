@@ -1,0 +1,42 @@
+[
+  {
+    "name": "John Doe",
+    "email": "john@example.com",
+    "password": "12345",
+    "subject": "Mathematics",
+    "phone": "9876543210",
+    "avatar": "https://randomuser.me/api/portraits/men/32.jpg"
+  },
+  {
+    "name": "Jane Smith",
+    "email": "jane@example.com",
+    "password": "abcde",
+    "subject": "Science",
+    "phone": "9123456789",
+    "avatar": "https://randomuser.me/api/portraits/women/44.jpg"
+  },
+  {
+    "name": "Michael Lee",
+    "email": "michael@example.com",
+    "password": "mike123",
+    "subject": "English",
+    "phone": "9988776655",
+    "avatar": "https://randomuser.me/api/portraits/men/65.jpg"
+  },
+  {
+    "name": "Sophia Johnson",
+    "email": "sophia@example.com",
+    "password": "sophia789",
+    "subject": "History",
+    "phone": "9876123450",
+    "avatar": "https://randomuser.me/api/portraits/women/52.jpg"
+  },
+  {
+    "name": "David Brown",
+    "email": "david@example.com",
+    "password": "david456",
+    "subject": "Physics",
+    "phone": "9765432109",
+    "avatar": "https://randomuser.me/api/portraits/men/78.jpg"
+  }
+]
