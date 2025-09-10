@@ -1,283 +1,301 @@
 import React, { useState } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
-function Users() {
-  // Initial dummy users
-  const [users, setUsers] = useState([
-    { id: 1, name: "Alice", email: "alice@example.com", role: "Student", course: "Math" },
-    { id: 2, name: "Bob", email: "bob@example.com", role: "Teacher", course: "Science" },
-    { id: 3, name: "Charlie", email: "charlie@example.com", role: "Admin", course: "-" },
-    { id: 4, name: "David", email: "david@example.com", role: "Student", course: "History" },
-  ]);
+// ✅ Subject colors
+const subjectColors = {
+  Math: "primary",
+  Science: "success",
+  English: "info",
+  History: "warning",
+  Geography: "secondary",
+  Computer: "dark",
+};
 
-  const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] = useState("All");
-  const [newUser, setNewUser] = useState({ name: "", email: "", role: "Student", course: "" });
-  const [editUser, setEditUser] = useState(null);
+export default function Timetable() {
+  const [timetable, setTimetable] = useState([]);
+  const [newEntry, setNewEntry] = useState({
+    class: "",
+    section: "",
+    subject: "",
+    teacher: "",
+    day: "",
+    start: "",
+    end: "",
+    room: "",
+  });
+  const [editIndex, setEditIndex] = useState(null);
+  const [filter, setFilter] = useState({ class: "", teacher: "", day: "" });
+  const [view, setView] = useState("list");
+  const [toast, setToast] = useState({ show: false, message: "", type: "success" });
 
-  // Stats
-  const totalStudents = users.filter((u) => u.role === "Student").length;
-  const totalTeachers = users.filter((u) => u.role === "Teacher").length;
-  const totalAdmins = users.filter((u) => u.role === "Admin").length;
+  const classes = ["Class 1", "Class 2", "Class 3"];
+  const sections = ["A", "B", "C"];
+  const subjects = ["Math", "Science", "English", "History", "Geography", "Computer"];
+  const teachers = ["Mr. Smith", "Ms. Johnson", "Mr. Brown", "Mrs. Lee"];
+  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-  // Filter logic
-  const filteredUsers = users.filter(
-    (user) =>
-      (roleFilter === "All" || user.role === roleFilter) &&
-      user.name.toLowerCase().includes(search.toLowerCase())
+  // ✅ Toast
+  const showToast = (message, type = "success") => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast({ show: false, message: "", type: "success" }), 3000);
+  };
+
+  // ✅ Conflict detection
+  const hasConflict = (entry, indexToIgnore = null) => {
+    return timetable.some((e, idx) => {
+      if (idx === indexToIgnore) return false;
+      return (
+        e.day === entry.day &&
+        (e.class === entry.class || e.teacher === entry.teacher || e.room === entry.room) &&
+        ((entry.start >= e.start && entry.start < e.end) ||
+          (entry.end > e.start && entry.end <= e.end))
+      );
+    });
+  };
+
+  // ✅ Add / Update
+  const handleSubmit = () => {
+    if (!newEntry.class || !newEntry.section || !newEntry.subject || !newEntry.teacher || !newEntry.day || !newEntry.start || !newEntry.end) {
+      showToast("All fields are required!", "danger");
+      return;
+    }
+    if (newEntry.start >= newEntry.end) {
+      showToast("Start time must be before End time!", "warning");
+      return;
+    }
+    if (hasConflict(newEntry, editIndex)) {
+      showToast("Conflict detected!", "danger");
+      return;
+    }
+
+    if (editIndex !== null) {
+      const updated = [...timetable];
+      updated[editIndex] = newEntry;
+      setTimetable(updated);
+      showToast("Entry updated!");
+      setEditIndex(null);
+    } else {
+      setTimetable([...timetable, newEntry]);
+      showToast("Entry added!");
+    }
+
+    setNewEntry({ class: "", section: "", subject: "", teacher: "", day: "", start: "", end: "", room: "" });
+  };
+
+  const handleDelete = (index) => {
+    setTimetable(timetable.filter((_, i) => i !== index));
+    showToast("Entry deleted!", "danger");
+  };
+
+  const handleEdit = (index) => {
+    setNewEntry(timetable[index]);
+    setEditIndex(index);
+  };
+
+  // ✅ Filtered data
+  const filteredTimetable = timetable.filter(
+    (e) =>
+      (!filter.class || e.class === filter.class) &&
+      (!filter.teacher || e.teacher === filter.teacher) &&
+      (!filter.day || e.day === filter.day)
   );
 
-  // Add user
-  const handleAddUser = () => {
-    if (!newUser.name || !newUser.email) return alert("Please fill all fields!");
-    const id = users.length + 1;
-    setUsers([...users, { id, ...newUser }]);
-    setNewUser({ name: "", email: "", role: "Student", course: "" });
-    window.bootstrap.Modal.getInstance(document.getElementById("addUserModal")).hide();
-  };
-
-  // Edit user
-  const handleUpdateUser = () => {
-    setUsers(users.map((u) => (u.id === editUser.id ? editUser : u)));
-    setEditUser(null);
-    window.bootstrap.Modal.getInstance(document.getElementById("editUserModal")).hide();
-  };
-
-  // Delete user
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
-      setUsers(users.filter((u) => u.id !== id));
+  // ✅ Generate time slots (08:00 → 18:00 every 1 hour)
+  const generateTimeSlots = (start = "08:00", end = "18:00") => {
+    const slots = [];
+    let [h, m] = start.split(":").map(Number);
+    const [endH, endM] = end.split(":").map(Number);
+    while (h < endH || (h === endH && m < endM)) {
+      slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+      h++;
     }
+    return slots;
   };
+  const timeSlots = generateTimeSlots();
 
   return (
-    <div className="card p-3 shadow-sm">
-      <h4 className="mb-3 text-primary">Users Management</h4>
+    <div className="container my-4">
+      <h2 className="mb-3">Admin Timetable Management</h2>
 
-      {/* Stats */}
-      <div className="row mb-3 text-center">
-        <div className="col">
-          <div className="card bg-primary text-white p-2">
-            <h6>Students</h6>
-            <h5>{totalStudents}</h5>
-          </div>
+      {/* Toast */}
+      {toast.show && (
+        <div className={`alert alert-${toast.type} position-fixed top-0 end-0 m-3`} style={{ zIndex: 2000 }}>
+          {toast.message}
         </div>
-        <div className="col">
-          <div className="card bg-success text-white p-2">
-            <h6>Teachers</h6>
-            <h5>{totalTeachers}</h5>
-          </div>
-        </div>
-        <div className="col">
-          <div className="card bg-danger text-white p-2">
-            <h6>Admins</h6>
-            <h5>{totalAdmins}</h5>
-          </div>
-        </div>
-      </div>
+      )}
 
-      {/* Search & Filter */}
-      <div className="d-flex mb-3">
-        <input
-          type="text"
-          placeholder="Search by name..."
-          className="form-control me-2"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <select
-          className="form-select w-auto"
-          value={roleFilter}
-          onChange={(e) => setRoleFilter(e.target.value)}
-        >
-          <option value="All">All Roles</option>
-          <option value="Student">Students</option>
-          <option value="Teacher">Teachers</option>
-          <option value="Admin">Admins</option>
+      {/* Filters */}
+      <div className="d-flex gap-2 mb-3">
+        <select className="form-select" onChange={(e) => setFilter({ ...filter, class: e.target.value })}>
+          <option value="">All Classes</option>
+          {classes.map((c) => (
+            <option key={c}>{c}</option>
+          ))}
         </select>
-        <button
-          className="btn btn-primary ms-auto"
-          data-bs-toggle="modal"
-          data-bs-target="#addUserModal"
-        >
-          + Add User
+        <select className="form-select" onChange={(e) => setFilter({ ...filter, teacher: e.target.value })}>
+          <option value="">All Teachers</option>
+          {teachers.map((t) => (
+            <option key={t}>{t}</option>
+          ))}
+        </select>
+        <select className="form-select" onChange={(e) => setFilter({ ...filter, day: e.target.value })}>
+          <option value="">All Days</option>
+          {days.map((d) => (
+            <option key={d}>{d}</option>
+          ))}
+        </select>
+        <button className="btn btn-outline-primary" onClick={() => setView(view === "list" ? "grid" : "list")}>
+          Switch to {view === "list" ? "Grid" : "List"} View
         </button>
       </div>
 
-      {/* Users Table */}
-      <table className="table table-striped table-hover">
-        <thead className="table-dark">
-          <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Course</th>
-            <th className="text-end">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredUsers.length > 0 ? (
-            filteredUsers.map((user) => (
-              <tr key={user.id}>
-                <td>{user.id}</td>
-                <td>{user.name}</td>
-                <td>{user.email}</td>
-                <td>
-                  <span
-                    className={`badge ${
-                      user.role === "Student"
-                        ? "bg-primary"
-                        : user.role === "Teacher"
-                        ? "bg-success"
-                        : "bg-danger"
-                    }`}
-                  >
-                    {user.role}
-                  </span>
-                </td>
-                <td>{user.course || "-"}</td>
-                <td className="text-end">
-                  <button
-                    className="btn btn-sm btn-warning me-2"
-                    data-bs-toggle="modal"
-                    data-bs-target="#editUserModal"
-                    onClick={() => setEditUser(user)}
-                  >
-                    Edit
-                  </button>
-                  <button className="btn btn-sm btn-danger" onClick={() => handleDelete(user.id)}>
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="6" className="text-center">
-                No users found
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-
-      {/* Add User Modal */}
-      <div className="modal fade" id="addUserModal" tabIndex="-1">
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">Add New User</h5>
-              <button className="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div className="modal-body">
-              <input
-                type="text"
-                className="form-control mb-2"
-                placeholder="Full Name"
-                value={newUser.name}
-                onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-              />
-              <input
-                type="email"
-                className="form-control mb-2"
-                placeholder="Email"
-                value={newUser.email}
-                onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-              />
-              <select
-                className="form-select mb-2"
-                value={newUser.role}
-                onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-              >
-                <option value="Student">Student</option>
-                <option value="Teacher">Teacher</option>
-                <option value="Admin">Admin</option>
-              </select>
-              {newUser.role !== "Admin" && (
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Assigned Course"
-                  value={newUser.course}
-                  onChange={(e) => setNewUser({ ...newUser, course: e.target.value })}
-                />
-              )}
-            </div>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" data-bs-dismiss="modal">
+      {/* Add/Edit Form */}
+      <div className="card p-3 mb-4">
+        <h5>{editIndex !== null ? "Edit Entry" : "Add New Entry"}</h5>
+        <div className="row g-2">
+          <div className="col-md-2">
+            <select className="form-select" value={newEntry.class} onChange={(e) => setNewEntry({ ...newEntry, class: e.target.value })}>
+              <option value="">Class</option>
+              {classes.map((c) => (
+                <option key={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+          <div className="col-md-1">
+            <select className="form-select" value={newEntry.section} onChange={(e) => setNewEntry({ ...newEntry, section: e.target.value })}>
+              <option value="">Sec</option>
+              {sections.map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+          <div className="col-md-2">
+            <select className="form-select" value={newEntry.subject} onChange={(e) => setNewEntry({ ...newEntry, subject: e.target.value })}>
+              <option value="">Subject</option>
+              {subjects.map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+          <div className="col-md-2">
+            <select className="form-select" value={newEntry.teacher} onChange={(e) => setNewEntry({ ...newEntry, teacher: e.target.value })}>
+              <option value="">Teacher</option>
+              {teachers.map((t) => (
+                <option key={t}>{t}</option>
+              ))}
+            </select>
+          </div>
+          <div className="col-md-2">
+            <select className="form-select" value={newEntry.day} onChange={(e) => setNewEntry({ ...newEntry, day: e.target.value })}>
+              <option value="">Day</option>
+              {days.map((d) => (
+                <option key={d}>{d}</option>
+              ))}
+            </select>
+          </div>
+          <div className="col-md-1">
+            <input type="time" className="form-control" value={newEntry.start} onChange={(e) => setNewEntry({ ...newEntry, start: e.target.value })} />
+          </div>
+          <div className="col-md-1">
+            <input type="time" className="form-control" value={newEntry.end} onChange={(e) => setNewEntry({ ...newEntry, end: e.target.value })} />
+          </div>
+          <div className="col-md-1">
+            <input type="text" placeholder="Room" className="form-control" value={newEntry.room} onChange={(e) => setNewEntry({ ...newEntry, room: e.target.value })} />
+          </div>
+          <div className="col-md-12 mt-2">
+            <button className="btn btn-success me-2" onClick={handleSubmit}>
+              {editIndex !== null ? "Update" : "Add"}
+            </button>
+            {editIndex !== null && (
+              <button className="btn btn-secondary" onClick={() => setEditIndex(null)}>
                 Cancel
               </button>
-              <button className="btn btn-primary" onClick={handleAddUser}>
-                Save
-              </button>
-            </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Edit User Modal */}
-      {editUser && (
-        <div className="modal fade show" id="editUserModal" style={{ display: "block" }}>
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Edit User</h5>
-                <button
-                  className="btn-close"
-                  data-bs-dismiss="modal"
-                  onClick={() => setEditUser(null)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <input
-                  type="text"
-                  className="form-control mb-2"
-                  value={editUser.name}
-                  onChange={(e) => setEditUser({ ...editUser, name: e.target.value })}
-                />
-                <input
-                  type="email"
-                  className="form-control mb-2"
-                  value={editUser.email}
-                  onChange={(e) => setEditUser({ ...editUser, email: e.target.value })}
-                />
-                <select
-                  className="form-select mb-2"
-                  value={editUser.role}
-                  onChange={(e) => setEditUser({ ...editUser, role: e.target.value })}
-                >
-                  <option value="Student">Student</option>
-                  <option value="Teacher">Teacher</option>
-                  <option value="Admin">Admin</option>
-                </select>
-                {editUser.role !== "Admin" && (
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Assigned Course"
-                    value={editUser.course}
-                    onChange={(e) => setEditUser({ ...editUser, course: e.target.value })}
-                  />
-                )}
-              </div>
-              <div className="modal-footer">
-                <button
-                  className="btn btn-secondary"
-                  data-bs-dismiss="modal"
-                  onClick={() => setEditUser(null)}
-                >
-                  Cancel
-                </button>
-                <button className="btn btn-success" onClick={handleUpdateUser}>
-                  Update
-                </button>
-              </div>
-            </div>
-          </div>
+      {/* List View */}
+      {view === "list" && (
+        <table className="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Section</th>
+              <th>Subject</th>
+              <th>Teacher</th>
+              <th>Day</th>
+              <th>Start</th>
+              <th>End</th>
+              <th>Room</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredTimetable.map((e, i) => (
+              <tr key={i}>
+                <td>{e.class}</td>
+                <td>{e.section}</td>
+                <td><span className={`badge bg-${subjectColors[e.subject] || "secondary"}`}>{e.subject}</span></td>
+                <td>{e.teacher}</td>
+                <td>{e.day}</td>
+                <td>{e.start}</td>
+                <td>{e.end}</td>
+                <td>{e.room}</td>
+                <td>
+                  <button className="btn btn-sm btn-warning me-1" onClick={() => handleEdit(i)}>Edit</button>
+                  <button className="btn btn-sm btn-danger" onClick={() => handleDelete(i)}>Delete</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      {/* Grid View */}
+      {view === "grid" && (
+        <div className="table-responsive">
+          <table className="table table-bordered align-middle text-center">
+            <thead>
+              <tr>
+                <th>Time</th>
+                {days.map((d) => (
+                  <th key={d}>{d}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {timeSlots.map((time) => (
+                <tr key={time}>
+                  <td>{time}</td>
+                  {days.map((d) => {
+                    const slots = timetable.filter((e) => e.day === d && e.start <= time && e.end > time);
+                    return (
+                      <td key={d + time}>
+                        {slots.length > 0 ? (
+                          slots.map((slot, idx) => (
+                            <div key={idx} className={`p-1 mb-1 text-white rounded bg-${subjectColors[slot.subject] || "secondary"}`}>
+                              <strong>{slot.subject}</strong> <br />
+                              {slot.teacher} <br />
+                              ({slot.start} - {slot.end}) <br />
+                              {slot.room}
+                            </div>
+                          ))
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
   );
 }
-
-export default Users;
