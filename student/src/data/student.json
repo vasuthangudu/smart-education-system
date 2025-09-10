@@ -1,0 +1,35 @@
+{
+  "profile": {
+    "name": "Anjali Reddy",
+    "roll": "221801420056",
+    "branch": "B.Tech in Computer Science and Engineering",
+    "regNo": "23221841N121256",
+    "image": "https://images.unsplash.com/photo-1615109398623-88346a601842?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8bWFufGVufDB8fDB8fHww"
+  },
+  "personalDetails": {
+    "fatherName": "Reddy Srinivas",
+    "email": "221801420056@cutmap.ac.in",
+    "dob": "2004-08-14",
+    "gender": "Female",
+    "nationality": "Indian",
+    "religion": "Hinduism",
+    "emergencyContact": "9876501234"
+  },
+  "universityInfo": {
+    "admissionNumber": "23221841N121256",
+    "applicationNumber": "SETV18105",
+    "feeCategory": "OBC",
+    "dateOfAdmission": "2022-11-18",
+    "userId": "221801420056",
+    "class": "Bachelor of Technology in Computer Science and Engineering",
+    "semester": "Sem 5",
+    "eligibilityNumber": "PRN654321"
+  },
+  "address": {
+    "localAddress": "Maddilapalem, Visakhapatnam",
+    "permanentAddress": "Maddilapalem, Visakhapatnam",
+    "city": "Visakhapatnam",
+    "state": "Andhra Pradesh",
+    "zipCode": "530003"
+  }
+}

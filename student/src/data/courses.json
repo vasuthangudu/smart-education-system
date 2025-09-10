@@ -1,0 +1,222 @@
+[
+  {
+    "id": 1,
+    "subject": "Data Structures & Algorithms",
+    "department": "Computer Science",
+    "faculty": "Prof. Reddy",
+    "videos": [
+      { "title": "Introduction to DSA", "url": "https://www.youtube.com/embed/8hly31xKli0" },
+      { "title": "Sorting Algorithms", "url": "https://www.youtube.com/embed/kPRA0W1kECg" }
+    ],
+    "materials": ["DSA_Notes.pdf", "Sorting_Assignment.docx"]
+  },
+  {
+    "id": 2,
+    "subject": "Database Management Systems",
+    "department": "Computer Science",
+    "faculty": "Prof. Kumar",
+    "videos": [
+      { "title": "ER Diagrams", "url": "https://www.youtube.com/embed/dQw4w9WgXcQ" },
+      { "title": "Normalization", "url": "https://www.youtube.com/embed/xeu6jXkXNMY" }
+    ],
+    "materials": ["DBMS_Notes.pdf", "SQL_Quiz.pdf"]
+  },
+  {
+    "id": 3,
+    "subject": "Operating Systems",
+    "department": "Computer Science",
+    "faculty": "Dr. Meena",
+    "videos": [
+      { "title": "Process Management", "url": "https://www.youtube.com/embed/26QPDBe-NB8" },
+      { "title": "Deadlocks", "url": "https://www.youtube.com/embed/9U-VYCu0B0c" }
+    ],
+    "materials": ["OS_Slides.pdf", "Deadlock_Assignment.docx"]
+  },
+  {
+    "id": 4,
+    "subject": "Computer Networks",
+    "department": "Computer Science",
+    "faculty": "Dr. Anil",
+    "videos": [
+      { "title": "Network Layers", "url": "https://www.youtube.com/embed/qiQR5rTSshw" },
+      { "title": "IP Addressing", "url": "https://www.youtube.com/embed/pWqrlrJXn2s" }
+    ],
+    "materials": ["CN_Notes.pdf", "Networking_Assignment.pdf"]
+  },
+  {
+    "id": 5,
+    "subject": "Software Engineering",
+    "department": "Computer Science",
+    "faculty": "Prof. Neha",
+    "videos": [
+      { "title": "SDLC Models", "url": "https://www.youtube.com/embed/z2iX9cA3Lk0" },
+      { "title": "Agile Methodology", "url": "https://www.youtube.com/embed/1y8QjQ2WQPE" }
+    ],
+    "materials": ["SE_Notes.pdf", "Agile_CaseStudy.docx"]
+  },
+  {
+    "id": 6,
+    "subject": "Artificial Intelligence",
+    "department": "Computer Science",
+    "faculty": "Dr. Ramesh",
+    "videos": [
+      { "title": "AI Basics", "url": "https://www.youtube.com/embed/2ePf9rue1Ao" },
+      { "title": "Search Algorithms", "url": "https://www.youtube.com/embed/v89G_Yd1GGE" }
+    ],
+    "materials": ["AI_Notes.pdf", "Search_Tutorial.docx"]
+  },
+  {
+    "id": 7,
+    "subject": "Machine Learning",
+    "department": "Computer Science",
+    "faculty": "Prof. Anita",
+    "videos": [
+      { "title": "Supervised Learning", "url": "https://www.youtube.com/embed/GwIo3gDZCVQ" },
+      { "title": "Unsupervised Learning", "url": "https://www.youtube.com/embed/h0e2HAPTGF4" }
+    ],
+    "materials": ["ML_Notes.pdf", "ML_Assignment.docx"]
+  },
+  {
+    "id": 8,
+    "subject": "Digital Signal Processing",
+    "department": "Electronics",
+    "faculty": "Dr. Sharma",
+    "videos": [
+      { "title": "Signals Basics", "url": "https://www.youtube.com/embed/XnQ9YuwgX98" },
+      { "title": "Fourier Transform", "url": "https://www.youtube.com/embed/jA9VtM3n6H8" }
+    ],
+    "materials": ["DSP_Lab_Manual.pdf", "Fourier_Problems.docx"]
+  },
+  {
+    "id": 9,
+    "subject": "Microprocessors",
+    "department": "Electronics",
+    "faculty": "Prof. Gupta",
+    "videos": [
+      { "title": "8085 Basics", "url": "https://www.youtube.com/embed/nr9d7KFWuZg" },
+      { "title": "Assembly Programming", "url": "https://www.youtube.com/embed/yT3Npr0GcCc" }
+    ],
+    "materials": ["MP_Notes.pdf", "Assembly_Programs.pdf"]
+  },
+  {
+    "id": 10,
+    "subject": "VLSI Design",
+    "department": "Electronics",
+    "faculty": "Dr. Vinay",
+    "videos": [
+      { "title": "MOSFET Basics", "url": "https://www.youtube.com/embed/4yQeZ6R9ulc" },
+      { "title": "CMOS Inverter", "url": "https://www.youtube.com/embed/oXbqjG3fPzM" }
+    ],
+    "materials": ["VLSI_Notes.pdf", "VLSI_Design.docx"]
+  },
+  {
+    "id": 11,
+    "subject": "Thermodynamics",
+    "department": "Mechanical",
+    "faculty": "Dr. Singh",
+    "videos": [
+      { "title": "Laws of Thermodynamics", "url": "https://www.youtube.com/embed/xfHxt8T_f5Q" },
+      { "title": "Entropy Explained", "url": "https://www.youtube.com/embed/yfR0oUZXqJY" }
+    ],
+    "materials": ["Thermo_Notes.pdf", "Entropy_Assignment.docx"]
+  },
+  {
+    "id": 12,
+    "subject": "Fluid Mechanics",
+    "department": "Mechanical",
+    "faculty": "Prof. Akash",
+    "videos": [
+      { "title": "Fluid Properties", "url": "https://www.youtube.com/embed/Z0ykxL3jHTw" },
+      { "title": "Bernoulli’s Equation", "url": "https://www.youtube.com/embed/xF4U9-6LB7c" }
+    ],
+    "materials": ["FM_Notes.pdf", "Fluid_Problems.docx"]
+  },
+  {
+    "id": 13,
+    "subject": "Strength of Materials",
+    "department": "Mechanical",
+    "faculty": "Dr. Kiran",
+    "videos": [
+      { "title": "Stress & Strain", "url": "https://www.youtube.com/embed/0Yw7wQJ9R0A" },
+      { "title": "Bending Stress", "url": "https://www.youtube.com/embed/n9h2UQqzUnY" }
+    ],
+    "materials": ["SOM_Notes.pdf", "Stress_Assignment.pdf"]
+  },
+  {
+    "id": 14,
+    "subject": "Civil Engineering Materials",
+    "department": "Civil",
+    "faculty": "Prof. Rao",
+    "videos": [
+      { "title": "Concrete Basics", "url": "https://www.youtube.com/embed/2j8h3aSw2rI" },
+      { "title": "Steel Structures", "url": "https://www.youtube.com/embed/Zn5q1E1Q7VU" }
+    ],
+    "materials": ["Civil_Materials.pdf", "Steel_Design.docx"]
+  },
+  {
+    "id": 15,
+    "subject": "Structural Analysis",
+    "department": "Civil",
+    "faculty": "Dr. Nirmala",
+    "videos": [
+      { "title": "Trusses Analysis", "url": "https://www.youtube.com/embed/7IQG7Da9g2w" },
+      { "title": "Beam Deflection", "url": "https://www.youtube.com/embed/s4VhT1TtAkk" }
+    ],
+    "materials": ["SA_Notes.pdf", "Beam_Assignment.pdf"]
+  },
+  {
+    "id": 16,
+    "subject": "Environmental Engineering",
+    "department": "Civil",
+    "faculty": "Prof. Suresh",
+    "videos": [
+      { "title": "Water Treatment", "url": "https://www.youtube.com/embed/7CmN5OUA3fY" },
+      { "title": "Waste Management", "url": "https://www.youtube.com/embed/qQz8YJrEqJQ" }
+    ],
+    "materials": ["Env_Eng_Notes.pdf", "Water_Treatment.docx"]
+  },
+  {
+    "id": 17,
+    "subject": "Business Management",
+    "department": "Management",
+    "faculty": "Prof. Kavitha",
+    "videos": [
+      { "title": "Principles of Management", "url": "https://www.youtube.com/embed/pNz3qHz5R5M" },
+      { "title": "Leadership Styles", "url": "https://www.youtube.com/embed/Xn7KWR9EOGQ" }
+    ],
+    "materials": ["BM_Notes.pdf", "Leadership_Assignment.pdf"]
+  },
+  {
+    "id": 18,
+    "subject": "Economics for Engineers",
+    "department": "Management",
+    "faculty": "Dr. Thomas",
+    "videos": [
+      { "title": "Demand & Supply", "url": "https://www.youtube.com/embed/PIYEKlt0hBs" },
+      { "title": "Cost Analysis", "url": "https://www.youtube.com/embed/qe6ZHe3wCFA" }
+    ],
+    "materials": ["Econ_Notes.pdf", "Cost_Assignment.docx"]
+  },
+  {
+    "id": 19,
+    "subject": "Engineering Mathematics",
+    "department": "Mathematics",
+    "faculty": "Prof. Priya",
+    "videos": [
+      { "title": "Linear Algebra", "url": "https://www.youtube.com/embed/9o7zHzeORJ0" },
+      { "title": "Differential Equations", "url": "https://www.youtube.com/embed/p_di4Zn4wz4" }
+    ],
+    "materials": ["Math_Notes.pdf", "DE_Assignment.pdf"]
+  },
+  {
+    "id": 20,
+    "subject": "Probability & Statistics",
+    "department": "Mathematics",
+    "faculty": "Dr. Rajesh",
+    "videos": [
+      { "title": "ProbabilityBasics", "url": "https://www.youtube.com/embed/KzfWUEJjG18" },
+      { "title": "Hypothesis Testing", "url": "https://www.youtube.com/embed/YAlJCEDH2uY" }
+    ],
+    "materials": ["Stats_Notes.pdf", "Hypothesis_Assignment.docx"]
+  }
+]

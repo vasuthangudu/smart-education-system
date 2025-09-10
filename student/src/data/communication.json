@@ -1,0 +1,41 @@
+{
+  "messages": [
+    {
+      "id": "msg1",
+      "sender": "Admin",
+      "receiver": "student123",
+      "subject": "Campus Closure",
+      "message": "Campus will be closed on Sept 22 for maintenance.",
+      "attachments": [
+        {"name": "schedule.pdf", "url": "/resources/schedule.pdf"}
+      ],
+      "priority": "Urgent",
+      "category": "Announcement",
+      "dateTime": "2025-09-10T09:00:00",
+      "read": false,
+      "pinned": true,
+      "replies": [
+        {
+          "id": "r1",
+          "sender": "student123",
+          "message": "Thank you for the update.",
+          "dateTime": "2025-09-10T10:00:00"
+        }
+      ]
+    },
+    {
+      "id": "msg2",
+      "sender": "Mr. Smith (Teacher)",
+      "receiver": "student123",
+      "subject": "Assignment Reminder",
+      "message": "Submit your Physics assignment by Sept 18.",
+      "attachments": [],
+      "priority": "Normal",
+      "category": "Assignment",
+      "dateTime": "2025-09-09T12:30:00",
+      "read": false,
+      "pinned": false,
+      "replies": []
+    }
+  ]
+}

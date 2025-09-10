@@ -1,0 +1,69 @@
+{
+  "page": "Notifications & Announcements",
+  "upcomingEvents": [
+    {
+      "id": "e1",
+      "eventTitle": "Math Quiz on Algebra",
+      "dateTime": "2025-09-20T10:00:00",
+      "organizer": "Mr. John (Teacher)",
+      "locationOrLink": "Room 102",
+      "category": "Exam",
+      "priority": "High",
+      "addToCalendar": true
+    },
+    {
+      "id": "e2",
+      "eventTitle": "Scholarship Seminar",
+      "dateTime": "2025-09-25T15:00:00",
+      "organizer": "Admin Office",
+      "locationOrLink": "https://zoom.example.com/seminar",
+      "category": "Seminar",
+      "priority": "Normal",
+      "addToCalendar": true
+    }
+  ],
+  "announcements": [
+    {
+      "id": 101,
+      "title": "Campus Closure Due to Maintenance",
+      "message": "The campus will be closed on Sept 22 for maintenance. All classes postponed.",
+      "priority": "Urgent",
+      "attachments": [
+        { "name": "maintenance-details.pdf", "url": "/resources/maintenance-details.pdf" }
+      ],
+      "dateTime": "2025-09-10T09:00:00",
+      "sender": "Admin Office",
+      "role": "Admin",
+      "category": "General",
+      "relatedLink": null
+    },
+    {
+      "id": 102,
+      "title": "Assignment Deadline Extended",
+      "message": "The Physics assignment deadline has been extended to Sept 18.",
+      "priority": "Info",
+      "attachments": [],
+      "dateTime": "2025-09-09T12:30:00",
+      "sender": "Ms. Smith",
+      "role": "Teacher",
+      "category": "Assignment",
+      "subjectBadge": "Physics",
+      "relatedLink": "/assignments/physics-2025"
+    },
+    {
+      "id": 103,
+      "title": "New Lab Materials Uploaded",
+      "message": "Lab materials for Chemistry uploaded to course page.",
+      "priority": "General",
+      "attachments": [
+        { "name": "chem-lab.zip", "url": "/resources/chem-lab.zip" }
+      ],
+      "dateTime": "2025-09-12T08:00:00",
+      "sender": "Dr. Reed",
+      "role": "Teacher",
+      "category": "Event",
+      "subjectBadge": "Chemistry",
+      "relatedLink": "/courses/chemistry"
+    }
+  ]
+}

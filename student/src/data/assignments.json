@@ -1,0 +1,64 @@
+[
+  {
+    "id": 1,
+    "title": "Arrays & Linked Lists Assignment",
+    "subject": "Data Structures",
+    "course": "CS201",
+    "department": "Computer Science",
+    "teacher": "Dr. John Doe",
+    "dueDate": "2025-09-20T23:59:00.000Z",
+    "description": "Answer short questions and implement basic array and linked list operations. Submit code & report.",
+    "gradingCriteria": "Correctness 60%, Code style 20%, Documentation 20%",
+    "resources": [
+      { "type": "pdf", "name": "assignment-spec.pdf", "url": "/resources/assignment-spec.pdf" },
+      { "type": "video", "name": "lecture-3", "url": "https://www.youtube.com/embed/VIDEO_ID" }
+    ],
+    "allowResubmit": true,
+    "maxMarks": 100,
+    "submissions": []
+  },
+  {
+    "id": 2,
+    "title": "Thermodynamics Problem Set",
+    "subject": "Thermodynamics",
+    "course": "ME101",
+    "department": "Mechanical",
+    "teacher": "Prof. Jane Smith",
+    "dueDate": "2025-09-18T16:00:00.000Z",
+    "description": "Solve the attached problems. Show all steps. Submit scanned PDF or typed solution.",
+    "gradingCriteria": "Steps 50%, Final answer 50%",
+    "resources": [
+      { "type": "pdf", "name": "problems.pdf", "url": "/resources/problems.pdf" }
+    ],
+    "allowResubmit": false,
+    "maxMarks": 50,
+    "submissions": [
+      {
+        "version": 1,
+        "submittedAt": "2025-09-15T10:30:00.000Z",
+        "files": [{ "name": "thermo-solution.pdf", "type": "pdf" }],
+        "textAnswer": "",
+        "grade": 42,
+        "feedback": "Good work. Minor mistakes in Q3.",
+        "status": "Graded"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Project Proposal",
+    "subject": "Software Engineering",
+    "course": "CS401",
+    "department": "Computer Science",
+    "teacher": "Dr. Alice Roy",
+    "dueDate": "2025-10-01T11:59:00.000Z",
+    "description": "Proposal for final project. Use attached template. Group submissions allowed.",
+    "gradingCriteria": "Clarity 40%, Feasibility 40%, Originality 20%",
+    "resources": [
+      { "type": "docx", "name": "proposal-template.docx", "url": "/resources/proposal-template.docx" }
+    ],
+    "allowResubmit": true,
+    "maxMarks": 150,
+    "submissions": []
+  }
+]
