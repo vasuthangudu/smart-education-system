@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1,
+    "fullName": "Admin One",
+    "email": "admin1@example.com",
+    "password": "adminpass1",
+    "phone": "9876500001",
+    "role": "Super Admin",
+    "employeeId": "ADM1001",
+    "department": "Administration",
+    "joiningDate": "2020-01-15"
+  },
+  {
+    "id": 2,
+    "fullName": "Admin Two",
+    "email": "admin2@example.com",
+    "password": "adminpass2",
+    "phone": "9876500002",
+    "role": "Academic Admin",
+    "employeeId": "ADM1002",
+    "department": "Academics",
+    "joiningDate": "2021-03-10"
+  }
+]
