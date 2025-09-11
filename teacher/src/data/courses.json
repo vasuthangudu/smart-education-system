@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1,
+    "subject": "Data Structures & Algorithms",
+    "department": "Computer Science",
+    "faculty": "Prof. Reddy",
+    "videos": [
+      {
+        "title": "Introduction to DSA",
+        "url": "https://www.youtube.com/embed/8hly31xKli0"
+      },
+      {
+        "title": "Arrays and Linked Lists",
+        "url": "https://www.youtube.com/embed/NdF1QDTRkck"
+      }
+    ],
+    "materials": [
+      {
+        "name": "DSA_Notes.pdf",
+        "file": null
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "subject": "Database Management Systems",
+    "department": "Information Technology",
+    "faculty": "Dr. Sharma",
+    "videos": [
+      {
+        "title": "Relational Databases Basics",
+        "url": "https://www.youtube.com/embed/h6QFNeCjyEk"
+      },
+      {
+        "title": "SQL Joins Explained",
+        "url": "https://www.youtube.com/embed/9yeOJ0ZMUYw"
+      }
+    ],
+    "materials": [
+      {
+        "name": "DBMS_Slides.pdf",
+        "file": null
+      },
+      {
+        "name": "ER_Diagrams.pdf",
+        "file": null
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "subject": "Operating Systems",
+    "department": "Computer Engineering",
+    "faculty": "Prof. Anita Verma",
+    "videos": [
+      {
+        "title": "Process Scheduling",
+        "url": "https://www.youtube.com/embed/j1QDy2I1KNk"
+      }
+    ],
+    "materials": [
+      {
+        "name": "OS_Notes.pdf",
+        "file": null
+      }
+    ]
+  }
+]

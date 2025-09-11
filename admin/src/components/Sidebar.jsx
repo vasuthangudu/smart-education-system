@@ -18,7 +18,7 @@ function Sidebar() {
 
   return (
     <div className="sidebar bg-dark text-white position-fixed vh-100" style={{ width: "250px" }}>
-      <h4 className="text-center py-3">🎓 SmartEdu</h4>
+      <h4 className="text-center py-3">🎓 Admin</h4>
       {menuItems.map((item, index) => (
         <Link
           key={index}
