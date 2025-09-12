@@ -22,41 +22,5 @@
     "department": "Academics",
     "joiningDate": "2021-03-10",
     "profileImage": "https://randomuser.me/api/portraits/men/46.jpg"
-  },
-  {
-    "id": 3,
-    "fullName": "Clara Evans",
-    "email": "clara@example.com",
-    "password": "clara123",
-    "phone": "+91 9988776655",
-    "role": "Finance Admin",
-    "employeeId": "ADM1003",
-    "department": "Finance",
-    "joiningDate": "2022-06-22",
-    "profileImage": "https://randomuser.me/api/portraits/women/65.jpg"
-  },
-  {
-    "id": 4,
-    "fullName": "David Lee",
-    "email": "david@example.com",
-    "password": "davidpass",
-    "phone": "+91 9090909090",
-    "role": "HR Admin",
-    "employeeId": "ADM1004",
-    "department": "Human Resources",
-    "joiningDate": "2023-02-14",
-    "profileImage": "https://randomuser.me/api/portraits/men/78.jpg"
-  },
-  {
-    "id": 5,
-    "fullName": "Emma Davis",
-    "email": "emma@example.com",
-    "password": "emma789",
-    "phone": "+91 9876001234",
-    "role": "IT Admin",
-    "employeeId": "ADM1005",
-    "department": "Information Technology",
-    "joiningDate": "2023-09-30",
-    "profileImage": "https://randomuser.me/api/portraits/women/12.jpg"
   }
 ]

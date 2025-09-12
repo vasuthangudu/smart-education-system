@@ -1,27 +1,44 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import adminsData from "../data/admins.json";
+import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 export default function Login({ setLoggedInAdmin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const admin = adminsData.find(
-      (a) => a.email === email && a.password === password
-    );
+    setError("");
+    setLoading(true);
 
-    if (admin) {
-      // Exclude password before saving to state
-      const { password, ...adminData } = admin;
-      setLoggedInAdmin(adminData);
-      navigate("/");
-    } else {
-      setError("❌ Invalid email or password. Please try again.");
+    try {
+      // Fetch admin list from API
+      const response = await axios.get("http://localhost:5000/api/admins");
+      const admins = response.data; // Expecting an array of admin objects
+
+      // Find matching admin by email & password
+      const admin = admins.find(
+        (a) => a.email === email && a.password === password
+      );
+
+      if (admin) {
+        // Exclude password before saving to state/localStorage
+        const { password, ...adminData } = admin;
+        setLoggedInAdmin(adminData);
+        localStorage.setItem("loggedAdmin", JSON.stringify(adminData));
+        navigate("/");
+      } else {
+        setError("❌ Invalid email or password. Please try again.");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("⚠️ Unable to connect to the server. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -40,7 +57,9 @@ export default function Login({ setLoggedInAdmin }) {
           Smart Education System <br />
           <span className="text-secondary fs-5">Admin Login</span>
         </h3>
+
         {error && <div className="alert alert-danger text-center">{error}</div>}
+
         <form onSubmit={handleLogin}>
           <div className="mb-3">
             <label className="form-label fw-semibold">Email Address</label>
@@ -76,10 +95,12 @@ export default function Login({ setLoggedInAdmin }) {
             type="submit"
             className="btn btn-primary btn-lg w-100 shadow-sm"
             style={{ backgroundColor: "#2575fc", borderColor: "#2575fc" }}
+            disabled={loading}
           >
-            🚀 Login to Dashboard
+            {loading ? "🔄 Logging in..." : "🚀 Login to Dashboard"}
           </button>
         </form>
+
         <p className="mt-3 mb-0 text-center text-muted small">
           © 2025 Smart Education System
         </p>

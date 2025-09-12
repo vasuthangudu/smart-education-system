@@ -57,7 +57,7 @@ export default function Topbar({ teacher, onLogout }) {
               className="d-flex align-items-center border-0"
             >
               <img
-                src={teacher.avatar || "https://via.placeholder.com/40"}
+                src={teacher.profileImage || "https://via.placeholder.com/40"}
                 alt="profile"
                 className="rounded-circle me-2"
                 width="40"
@@ -66,7 +66,13 @@ export default function Topbar({ teacher, onLogout }) {
               <span className="d-none d-lg-inline">{teacher.name}</span>
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <Dropdown.Header>{teacher.email}</Dropdown.Header>
+              {/* Teacher Info */}
+              <Dropdown.Header>
+                <div className="fw-bold">{teacher.name}</div>
+                <div className="text-muted small">{teacher.email}</div>
+              </Dropdown.Header>
+              
+              <Dropdown.Divider />
               <Dropdown.Item as={Link} to="/profile">
                 <i className="bi bi-person me-2"></i> Profile
               </Dropdown.Item>

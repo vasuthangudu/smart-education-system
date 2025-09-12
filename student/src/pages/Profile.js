@@ -1,86 +1,49 @@
-import React from "react";
+// src/pages/Profile.jsx
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 export default function Profile() {
   const { student, logout } = useAuth();
   const navigate = useNavigate();
+  const [details, setDetails] = useState(null);
 
-  if (!student) return null; // handled by routing
+  useEffect(() => {
+    if (!student) {
+      navigate("/login");
+      return;
+    }
+    const fetchStudent = async () => {
+      try {
+        const { data } = await axios.get("http://localhost:5000/api/students");
+        const fresh = data.find((s) => s._id === student._id);
+        setDetails(fresh || student);
+      } catch (err) {
+        console.error("Failed to fetch student:", err);
+        setDetails(student);
+      }
+    };
+    fetchStudent();
+  }, [student, navigate]);
+
+  if (!details) {
+    return (
+      <div className="text-center mt-5">
+        <div className="spinner-border text-primary" role="status"></div>
+        <p className="mt-2">Loading profile...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mt-5">
-      <div className="text-center mb-4">
-        <h2 className="fw-bold">{student.name}'s Profile</h2>
-        <p className="text-muted">Student Dashboard / Profile</p>
-      </div>
-
-      <div className="row">
-        {/* Basic Info */}
-        <div className="col-md-6 mb-4">
-          <div className="card shadow-sm h-100">
-            <div className="card-body">
-              <h5 className="card-title">Basic Info</h5>
-              <p><strong>Email:</strong> {student.email}</p>
-              <p><strong>Department:</strong> {student.department}</p>
-              <p><strong>Year/Sem:</strong> {student.year}</p>
-              <p><strong>Section:</strong> {student.section}</p>
-              <p><strong>Courses:</strong> {student.courses.join(", ")}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Personal Details */}
-        <div className="col-md-6 mb-4">
-          <div className="card shadow-sm h-100">
-            <div className="card-body">
-              <h5 className="card-title">Personal Details</h5>
-              <p><strong>Father:</strong> {student.profile.personalDetails.fatherName}</p>
-              <p><strong>DOB:</strong> {student.profile.personalDetails.dob}</p>
-              <p><strong>Gender:</strong> {student.profile.personalDetails.gender}</p>
-              <p><strong>Nationality:</strong> {student.profile.personalDetails.nationality}</p>
-              <p><strong>Religion:</strong> {student.profile.personalDetails.religion}</p>
-              <p><strong>Emergency:</strong> {student.profile.personalDetails.emergencyContact}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* University Info */}
-        <div className="col-md-6 mb-4">
-          <div className="card shadow-sm h-100">
-            <div className="card-body">
-              <h5 className="card-title">University Info</h5>
-              <p><strong>Admission No:</strong> {student.profile.universityInfo.admissionNumber}</p>
-              <p><strong>Application No:</strong> {student.profile.universityInfo.applicationNumber}</p>
-              <p><strong>Fee Category:</strong> {student.profile.universityInfo.feeCategory}</p>
-              <p><strong>Date of Admission:</strong> {student.profile.universityInfo.dateOfAdmission}</p>
-              <p><strong>User ID:</strong> {student.profile.universityInfo.userId}</p>
-              <p><strong>Class:</strong> {student.profile.universityInfo.class}</p>
-              <p><strong>Semester:</strong> {student.profile.universityInfo.semester}</p>
-              <p><strong>Eligibility No:</strong> {student.profile.universityInfo.eligibilityNumber}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Address */}
-        <div className="col-md-6 mb-4">
-          <div className="card shadow-sm h-100">
-            <div className="card-body">
-              <h5 className="card-title">Address</h5>
-              <p><strong>Local:</strong> {student.profile.address.localAddress}</p>
-              <p><strong>Permanent:</strong> {student.profile.address.permanentAddress}</p>
-              <p><strong>City:</strong> {student.profile.address.city}</p>
-              <p><strong>State:</strong> {student.profile.address.state}</p>
-              <p><strong>ZIP:</strong> {student.profile.address.zipCode}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="text-center mt-4">
+      {/* Header with Logout */}
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="fw-bold">Student Profile</h2>
         <button
-          className="btn btn-danger btn-lg"
+          className="btn btn-danger"
           onClick={() => {
             logout();
             navigate("/login");
@@ -88,6 +51,67 @@ export default function Profile() {
         >
           Logout
         </button>
+      </div>
+
+      {/* Profile Card */}
+      <div className="card shadow-lg p-4">
+        <div className="text-center">
+          {details.profileImage ? (
+            <img
+              src={details.profileImage}
+              alt={details.name}
+              className="rounded-circle mb-3 border"
+              style={{ width: "150px", height: "150px", objectFit: "cover" }}
+            />
+          ) : (
+            <div
+              className="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mb-3"
+              style={{ width: "150px", height: "150px", fontSize: "2rem" }}
+            >
+              {details.name?.charAt(0).toUpperCase()}
+            </div>
+          )}
+          <h3 className="fw-bold">{details.name}</h3>
+          <p className="text-muted">{details.department}</p>
+        </div>
+
+        {/* Info Grid */}
+        <div className="row mt-4">
+          <div className="col-md-6 mb-3">
+            <div className="border rounded p-3 bg-light">
+              <h5 className="fw-bold">Basic Information</h5>
+              <p>
+                <strong>Email:</strong> {details.email}
+              </p>
+              <p>
+                <strong>Father's Name:</strong> {details.fatherName}
+              </p>
+              <p>
+                <strong>Gender:</strong> {details.gender}
+              </p>
+              <p>
+                <strong>Date of Birth:</strong> {details.dob}
+              </p>
+            </div>
+          </div>
+
+          <div className="col-md-6 mb-3">
+            <div className="border rounded p-3 bg-light">
+              <h5 className="fw-bold">Address & Department</h5>
+              <p>
+                <strong>Address:</strong> {details.address}
+              </p>
+              <p>
+                <strong>Department:</strong> {details.department}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Raw JSON for debugging (optional) */}
+        {/* <pre className="bg-dark text-white p-3 rounded mt-3">
+          {JSON.stringify(details, null, 2)}
+        </pre> */}
       </div>
     </div>
   );
