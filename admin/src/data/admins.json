@@ -1,24 +1,62 @@
 [
   {
     "id": 1,
-    "fullName": "Admin One",
-    "email": "admin1@example.com",
-    "password": "adminpass1",
-    "phone": "9876500001",
+    "fullName": "Alice Johnson",
+    "email": "alice@example.com",
+    "password": "123456",
+    "phone": "+91 9876543210",
     "role": "Super Admin",
     "employeeId": "ADM1001",
     "department": "Administration",
-    "joiningDate": "2020-01-15"
+    "joiningDate": "2020-01-15",
+    "profileImage": "https://randomuser.me/api/portraits/women/44.jpg"
   },
   {
     "id": 2,
-    "fullName": "Admin Two",
-    "email": "admin2@example.com",
-    "password": "adminpass2",
-    "phone": "9876500002",
-    "role": "Academic Admin",
+    "fullName": "Bob Smith",
+    "email": "bob@example.com",
+    "password": "password",
+    "phone": "+91 9123456780",
+    "role": "Admin",
     "employeeId": "ADM1002",
     "department": "Academics",
-    "joiningDate": "2021-03-10"
+    "joiningDate": "2021-03-10",
+    "profileImage": "https://randomuser.me/api/portraits/men/46.jpg"
+  },
+  {
+    "id": 3,
+    "fullName": "Clara Evans",
+    "email": "clara@example.com",
+    "password": "clara123",
+    "phone": "+91 9988776655",
+    "role": "Finance Admin",
+    "employeeId": "ADM1003",
+    "department": "Finance",
+    "joiningDate": "2022-06-22",
+    "profileImage": "https://randomuser.me/api/portraits/women/65.jpg"
+  },
+  {
+    "id": 4,
+    "fullName": "David Lee",
+    "email": "david@example.com",
+    "password": "davidpass",
+    "phone": "+91 9090909090",
+    "role": "HR Admin",
+    "employeeId": "ADM1004",
+    "department": "Human Resources",
+    "joiningDate": "2023-02-14",
+    "profileImage": "https://randomuser.me/api/portraits/men/78.jpg"
+  },
+  {
+    "id": 5,
+    "fullName": "Emma Davis",
+    "email": "emma@example.com",
+    "password": "emma789",
+    "phone": "+91 9876001234",
+    "role": "IT Admin",
+    "employeeId": "ADM1005",
+    "department": "Information Technology",
+    "joiningDate": "2023-09-30",
+    "profileImage": "https://randomuser.me/api/portraits/women/12.jpg"
   }
 ]

@@ -1,0 +1,187 @@
+[
+  {
+    "id": 1,
+    "name": "Manoj Kumar",
+    "email": "manoj.kumar@university.ac.in",
+    "password": "manoj123",
+    "department": "Mechanical Engineering",
+    "year": "Sem 7",
+    "section": "C 2",
+    "courses": ["Thermodynamics", "Fluid Mechanics"],
+    "profile": {
+      "personalDetails": {
+        "fatherName": "Srinivas Kumar",
+        "dob": "2002-11-10",
+        "gender": "Male",
+        "nationality": "Indian",
+        "religion": "Christianity",
+        "emergencyContact": "9876503333"
+      },
+      "universityInfo": {
+        "admissionNumber": "ADM202303",
+        "applicationNumber": "APP202303",
+        "feeCategory": "SC",
+        "dateOfAdmission": "2022-11-18",
+        "userId": "STU202303",
+        "class": "B.Tech ME",
+        "semester": "Sem 7",
+        "eligibilityNumber": "ELG202303"
+      },
+      "address": {
+        "localAddress": "Maddilapalem, Visakhapatnam",
+        "permanentAddress": "Maddilapalem, Visakhapatnam",
+        "city": "Visakhapatnam",
+        "state": "Andhra Pradesh",
+        "zipCode": "530003"
+      }
+    }
+  },
+  {
+    "id": 2,
+    "name": "Alice Johnson",
+    "email": "alice@example.com",
+    "password": "alice123",
+    "department": "Computer Science",
+    "year": "Sem 5",
+    "section": "A 1",
+    "courses": ["AI Basics", "Data Structures"],
+    "profile": {
+      "personalDetails": {
+        "fatherName": "Reddy Srinivas",
+        "dob": "2004-08-14",
+        "gender": "Female",
+        "nationality": "Indian",
+        "religion": "Hinduism",
+        "emergencyContact": "9876501234"
+      },
+      "universityInfo": {
+        "admissionNumber": "23221841N121256",
+        "applicationNumber": "SETV18105",
+        "feeCategory": "OBC",
+        "dateOfAdmission": "2022-11-18",
+        "userId": "221801420056",
+        "class": "B.Tech CSE",
+        "semester": "Sem 5",
+        "eligibilityNumber": "PRN654321"
+      },
+      "address": {
+        "localAddress": "Maddilapalem, Visakhapatnam",
+        "permanentAddress": "Maddilapalem, Visakhapatnam",
+        "city": "Visakhapatnam",
+        "state": "Andhra Pradesh",
+        "zipCode": "530003"
+      }
+    }
+  },
+  {
+    "id": 3,
+    "name": "Bob Smith",
+    "email": "bob@example.com",
+    "password": "bob123",
+    "department": "Mechanical",
+    "year": "Sem 4",
+    "section": "B 1",
+    "courses": ["Thermodynamics", "Fluid Mechanics"],
+    "profile": {
+      "personalDetails": {
+        "fatherName": "John Smith",
+        "dob": "2003-03-22",
+        "gender": "Male",
+        "nationality": "Indian",
+        "religion": "Christianity",
+        "emergencyContact": "9876512345"
+      },
+      "universityInfo": {
+        "admissionNumber": "ADM202301",
+        "applicationNumber": "APP202301",
+        "feeCategory": "General",
+        "dateOfAdmission": "2021-08-15",
+        "userId": "STU202301",
+        "class": "B.Tech ME",
+        "semester": "Sem 4",
+        "eligibilityNumber": "ELG202301"
+      },
+      "address": {
+        "localAddress": "Gajuwaka, Visakhapatnam",
+        "permanentAddress": "Gajuwaka, Visakhapatnam",
+        "city": "Visakhapatnam",
+        "state": "Andhra Pradesh",
+        "zipCode": "530026"
+      }
+    }
+  },
+  {
+    "id": 4,
+    "name": "Charlie Davis",
+    "email": "charlie.davis@example.com",
+    "password": "charlie123",
+    "department": "Electronics",
+    "year": "Sem 3",
+    "section": "C 1",
+    "courses": ["Digital Electronics", "Signals & Systems"],
+    "profile": {
+      "personalDetails": {
+        "fatherName": "David Davis",
+        "dob": "2004-01-10",
+        "gender": "Male",
+        "nationality": "Indian",
+        "religion": "Hinduism",
+        "emergencyContact": "9876523456"
+      },
+      "universityInfo": {
+        "admissionNumber": "ADM202302",
+        "applicationNumber": "APP202302",
+        "feeCategory": "OBC",
+        "dateOfAdmission": "2022-07-10",
+        "userId": "STU202302",
+        "class": "B.Tech ECE",
+        "semester": "Sem 3",
+        "eligibilityNumber": "ELG202302"
+      },
+      "address": {
+        "localAddress": "Seethammadhara, Visakhapatnam",
+        "permanentAddress": "Seethammadhara, Visakhapatnam",
+        "city": "Visakhapatnam",
+        "state": "Andhra Pradesh",
+        "zipCode": "530013"
+      }
+    }
+  },
+  {
+    "id": 5,
+    "name": "Eve Williams",
+    "email": "eve.williams@example.com",
+    "password": "eve123",
+    "department": "Computer Science",
+    "year": "Sem 6",
+    "section": "A 2",
+    "courses": ["Operating Systems", "DBMS"],
+    "profile": {
+      "personalDetails": {
+        "fatherName": "William Williams",
+        "dob": "2003-07-25",
+        "gender": "Female",
+        "nationality": "Indian",
+        "religion": "Christianity",
+        "emergencyContact": "9876534567"
+      },
+      "universityInfo": {
+        "admissionNumber": "ADM202305",
+        "applicationNumber": "APP202305",
+        "feeCategory": "General",
+        "dateOfAdmission": "2021-08-15",
+        "userId": "STU202305",
+        "class": "B.Tech CSE",
+        "semester": "Sem 6",
+        "eligibilityNumber": "ELG202305"
+      },
+      "address": {
+        "localAddress": "Kailasapuram, Visakhapatnam",
+        "permanentAddress": "Kailasapuram, Visakhapatnam",
+        "city": "Visakhapatnam",
+        "state": "Andhra Pradesh",
+        "zipCode": "530010"
+      }
+    }
+  }
+]
