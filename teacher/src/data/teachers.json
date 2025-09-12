@@ -1,12 +1,5 @@
 [
-  {
-    "name": "John Doe",
-    "email": "john@example.com",
-    "password": "12345",
-    "subject": "Mathematics",
-    "phone": "9876543210",
-    "avatar": "https://randomuser.me/api/portraits/men/32.jpg"
-  },
+  
   {
     "name": "Jane Smith",
     "email": "jane@example.com",
