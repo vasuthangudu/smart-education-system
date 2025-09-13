@@ -51,6 +51,20 @@ export default function Sidebar({ onLogout }) {
             Timetable
           </NavLink>
         </li>
+
+
+        <li className="nav-item mb-2">
+          <NavLink
+            to="/attendance"
+            className={({ isActive }) =>
+              `nav-link ${isActive ? "active bg-primary text-white" : "text-white"}`
+            }
+          >
+            Attendance
+          </NavLink>
+        </li>
+
+
         <li className="nav-item mb-2">
           <NavLink
             to="/assignments"

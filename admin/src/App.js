@@ -6,7 +6,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
 import Footer from "./components/Footer";
-
 import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
 import Students from "./pages/Students";
@@ -18,6 +17,7 @@ import Notifications from "./pages/Notifications";
 import AdminSettings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
+import Studentattendance from "./pages/Studentattendance";
 
 function App() {
   const [loggedInAdmin, setLoggedInAdmin] = useState(null);
@@ -54,6 +54,7 @@ function App() {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/users" element={<Users />} />
                 <Route path="/students" element={<Students />} />
+                <Route path="/attendance" element={<Studentattendance />} />
                 <Route path="/courses" element={<Courses />} />
                 <Route path="/timetable" element={<Timetable />} />
                 <Route path="/exams" element={<Exams />} />

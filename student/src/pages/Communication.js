@@ -1,13 +1,48 @@
-// src/Communication.jsx
-import React, { useState, useEffect, useMemo } from "react";
-import axios from "axios";
+import React, { useState, useMemo } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const API_MESSAGES = "http://localhost:5005/api/messages";
-const API_EVENTS = "http://localhost:5004/api/events";
-const API_ANNOUNCEMENTS = "http://127.0.0.1:5004/api/announcements";
+// Sample messages data
+const messagesData = {
+  messages: [
+    {
+      id: "msg1",
+      sender: "Admin",
+      receiver: "student123",
+      subject: "Campus Closure",
+      message: "Campus will be closed on Sept 22 for maintenance.",
+      attachments: [{ name: "schedule.pdf", url: "/resources/schedule.pdf" }],
+      priority: "Urgent",
+      category: "Announcement",
+      dateTime: "2025-09-10T09:00:00",
+      read: false,
+      pinned: true,
+      replies: [
+        {
+          id: "r1",
+          sender: "student123",
+          message: "Thanks for the info.",
+          dateTime: "2025-09-10T10:00:00",
+        },
+      ],
+    },
+    {
+      id: "msg2",
+      sender: "Mr. Smith (Teacher)",
+      receiver: "student123",
+      subject: "Assignment Reminder",
+      message: "Submit your Physics assignment by Sept 18.",
+      attachments: [],
+      priority: "Normal",
+      category: "Assignment",
+      dateTime: "2025-09-09T12:30:00",
+      read: false,
+      pinned: false,
+      replies: [],
+    },
+  ],
+};
 
-// -------------------- Contact Form --------------------
+// Contact Form Component
 function ContactForm({ onSend, onBack }) {
   const [receiver, setReceiver] = useState("");
   const [subject, setSubject] = useState("");
@@ -16,32 +51,36 @@ function ContactForm({ onSend, onBack }) {
 
   const handleFileChange = (e) => setAttachments([...e.target.files]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (!receiver || !subject || !message) {
       alert("Please fill all required fields.");
       return;
     }
 
-    try {
-      const formData = new FormData();
-      formData.append("sender", "student123"); // hardcoded sender
-      formData.append("receiver", receiver);
-      formData.append("subject", subject);
-      formData.append("message", message);
-      attachments.forEach((file) => formData.append("attachments", file));
+    const newMsg = {
+      id: `msg${Date.now()}`,
+      sender: "student123",
+      receiver,
+      subject,
+      message,
+      attachments: attachments.map((file) => ({
+        name: file.name,
+        url: URL.createObjectURL(file),
+      })),
+      priority: "Normal",
+      category: "Query",
+      dateTime: new Date().toISOString(),
+      read: false,
+      pinned: false,
+      replies: [],
+    };
 
-      const res = await axios.post(API_MESSAGES, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      if (res.data.success) {
-        onSend(res.data.data);
-      }
-    } catch (err) {
-      console.error("❌ Failed to send message:", err);
-      alert("Failed to send message.");
-    }
+    onSend(newMsg);
+    setReceiver("");
+    setSubject("");
+    setMessage("");
+    setAttachments([]);
   };
 
   return (
@@ -103,78 +142,25 @@ function ContactForm({ onSend, onBack }) {
   );
 }
 
-// -------------------- Main Component --------------------
+// Main Communication Component
 export default function Communication() {
-  const [messages, setMessages] = useState([]);
-  const [events, setEvents] = useState([]);
-  const [announcements, setAnnouncements] = useState([]);
+  const [messages, setMessages] = useState(messagesData.messages);
   const [showContactForm, setShowContactForm] = useState(false);
   const [query, setQuery] = useState("");
   const [detail, setDetail] = useState(null);
 
-  useEffect(() => {
-    fetchMessages();
-    fetchEvents();
-    fetchAnnouncements();
-  }, []);
-
-  const fetchMessages = async () => {
-    try {
-      const res = await axios.get(API_MESSAGES);
-      setMessages(res.data);
-    } catch (err) {
-      console.error("❌ Failed to fetch messages:", err);
-    }
+  const toggleRead = (id) => {
+    setMessages((msgs) =>
+      msgs.map((m) => (m.id === id ? { ...m, read: !m.read } : m))
+    );
   };
 
-  const fetchEvents = async () => {
-    try {
-      const res = await axios.get(API_EVENTS);
-      setEvents(res.data);
-    } catch (err) {
-      console.error("❌ Failed to fetch events:", err);
-    }
+  const togglePin = (id) => {
+    setMessages((msgs) =>
+      msgs.map((m) => (m.id === id ? { ...m, pinned: !m.pinned } : m))
+    );
   };
 
-  const fetchAnnouncements = async () => {
-    try {
-      const res = await axios.get(API_ANNOUNCEMENTS);
-      setAnnouncements(res.data);
-    } catch (err) {
-      console.error("❌ Failed to fetch announcements:", err);
-    }
-  };
-
-  // ----- Message Actions -----
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this message?")) return;
-    try {
-      await axios.delete(`${API_MESSAGES}/${id}`);
-      setMessages(messages.filter((m) => m._id !== id));
-    } catch (err) {
-      console.error("❌ Failed to delete message:", err);
-      alert("Failed to delete message.");
-    }
-  };
-
-  const handleEdit = async (msg) => {
-    const newSubject = prompt("Edit Subject:", msg.subject);
-    const newMessage = prompt("Edit Message:", msg.message);
-    if (!newSubject || !newMessage) return;
-
-    try {
-      const res = await axios.put(`${API_MESSAGES}/${msg._id}`, {
-        subject: newSubject,
-        message: newMessage,
-      });
-      setMessages(messages.map((m) => (m._id === msg._id ? res.data : m)));
-    } catch (err) {
-      console.error("❌ Failed to edit message:", err);
-      alert("Failed to edit message.");
-    }
-  };
-
-  // ----- Filtering -----
   const filtered = useMemo(() => {
     let list = [...messages];
 
@@ -187,7 +173,11 @@ export default function Communication() {
           m.subject?.toLowerCase().includes(query.toLowerCase()) ||
           m.message?.toLowerCase().includes(query.toLowerCase())
       );
-    }
+    if (senderFilter !== "All") list = list.filter((m) => m.sender.includes(senderFilter));
+    if (categoryFilter !== "All") list = list.filter((m) => m.category === categoryFilter);
+    if (sortBy === "newest") list.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
+    if (sortBy === "oldest") list.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+    if (sortBy === "priority") list.sort((a, b) => (a.priority === "Urgent" ? -1 : 1));
     return list;
   }, [messages, query]);
 
@@ -199,21 +189,25 @@ export default function Communication() {
   const handleSendMessage = (newMsg) => {
     setMessages([newMsg, ...messages]);
     alert("Message sent successfully!");
-    setShowContactForm(false);
+    setShowContactForm(false); // go back to Inbox after sending
   };
 
   if (showContactForm) {
-    return <ContactForm onSend={handleSendMessage} onBack={() => setShowContactForm(false)} />;
+    return (
+      <ContactForm onSend={handleSendMessage} onBack={() => setShowContactForm(false)} />
+    );
   }
 
   return (
     <div className="container my-4">
-      {/* Inbox Section */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h3>💬 Inbox</h3>
         <div>
           <span className="badge bg-primary me-2">Unread: {unreadCount}</span>
-          <button className="btn btn-sm btn-success" onClick={() => setShowContactForm(true)}>
+          <button
+            className="btn btn-sm btn-success"
+            onClick={() => setShowContactForm(true)}
+          >
             Contact Admin / Teacher
           </button>
         </div>
@@ -228,30 +222,63 @@ export default function Communication() {
           onChange={(e) => setQuery(e.target.value)}
           style={{ minWidth: 250 }}
         />
+        <select
+          className="form-select form-select-sm"
+          value={senderFilter}
+          onChange={(e) => setSenderFilter(e.target.value)}
+        >
+          <option>All</option>
+          <option>Admin</option>
+          <option>Teacher</option>
+        </select>
+        <select
+          className="form-select form-select-sm"
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+        >
+          <option>All</option>
+          <option>Announcement</option>
+          <option>Assignment</option>
+          <option>Exam</option>
+          <option>Event</option>
+          <option>Query</option>
+        </select>
+        <select
+          className="form-select form-select-sm"
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+        >
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="priority">Priority</option>
+        </select>
       </div>
 
       <div className="row">
         <div className="col-lg-8">
           {filtered.length === 0 && <div className="alert alert-info">No messages found.</div>}
           {filtered.map((m) => (
-            <div key={m._id} className={`card mb-2 ${!m.read ? "border-primary" : ""}`}>
+            <div key={m.id} className={`card mb-2 ${!m.read ? "border-primary" : ""}`}>
               <div className="card-body d-flex justify-content-between align-items-start">
                 <div>
                   <h6 style={{ fontWeight: !m.read ? 700 : 500 }}>
                     {m.sender}: {m.subject}
                   </h6>
-                  <div className="small text-muted">{new Date(m.createdAt).toLocaleString()}</div>
-                  <div>{m.message?.length > 100 ? m.message.slice(0, 100) + "…" : m.message}</div>
+                  <div className="small text-muted">{new Date(m.dateTime).toLocaleString()}</div>
+                  <div>{m.message.length > 100 ? m.message.slice(0, 100) + "…" : m.message}</div>
                 </div>
                 <div className="text-end">
-                  <button className="btn btn-sm btn-outline-primary me-2" onClick={() => setDetail(m)}>
+                  <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => toggleRead(m.id)}>
+                    {!m.read ? "Mark Read" : "Mark Unread"}
+                  </button>
+                  <button
+                    className={`btn btn-sm ${m.pinned ? "btn-success" : "btn-outline-success"} me-1`}
+                    onClick={() => togglePin(m.id)}
+                  >
+                    {m.pinned ? "Pinned" : "Pin"}
+                  </button>
+                  <button className="btn btn-sm btn-outline-primary" onClick={() => setDetail(m)}>
                     View
-                  </button>
-                  <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(m)}>
-                    ✏️ Edit
-                  </button>
-                  <button className="btn btn-sm btn-danger" onClick={() => handleDelete(m._id)}>
-                    🗑️ Delete
                   </button>
                 </div>
               </div>
@@ -259,68 +286,66 @@ export default function Communication() {
           ))}
         </div>
 
-        {/* Sidebar: Announcements + Events */}
+        {/* Sidebar: Pinned Messages */}
         <div className="col-lg-4">
           <div className="card p-3 mb-3">
-            <h6>📢 Announcements</h6>
+            <h6>Pinned Messages</h6>
             <ul className="list-unstyled">
-              {announcements.length === 0 && <div className="small text-muted">No announcements</div>}
-              {announcements.map((a) => (
-                <li key={a._id} className="mb-2">
-                  <strong>{a.message}</strong>
-                  <div className="small text-muted">
-                    {a.date} • {a.audience}
-                  </div>
+              {messages.filter((m) => m.pinned).map((m) => (
+                <li key={m.id} className="mb-2">
+                  <strong>{m.subject}</strong>
+                  <div className="small text-muted">{new Date(m.dateTime).toLocaleString()}</div>
                 </li>
               ))}
-            </ul>
-          </div>
-
-          <div className="card p-3">
-            <h6>📅 Events</h6>
-            <ul className="list-unstyled">
-              {events.length === 0 && <div className="small text-muted">No events</div>}
-              {events.map((e) => (
-                <li key={e._id} className="mb-2">
-                  <strong>{e.message}</strong>
-                  <div className="small text-muted">
-                    {e.date} • {e.audience}
-                  </div>
-                </li>
-              ))}
+              {messages.filter((m) => m.pinned).length === 0 && (
+                <div className="small text-muted">No pinned messages</div>
+              )}
             </ul>
           </div>
         </div>
       </div>
 
-      {/* Message Modal */}
       {detail && (
-        <div className="modal fade show d-block" tabIndex="-1" style={{ background: "rgba(0,0,0,0.4)" }}>
+        <div
+          className="modal fade show d-block"
+          tabIndex="-1"
+          style={{ background: "rgba(0,0,0,0.4)" }}
+        >
           <div className="modal-dialog modal-lg">
             <div className="modal-content">
               <div className="modal-header">
                 <h5>{detail.subject}</h5>
                 <small className="text-muted ms-3">
-                  {detail.sender} • {new Date(detail.createdAt).toLocaleString()}
+                  {detail.sender} • {new Date(detail.dateTime).toLocaleString()}
                 </small>
                 <button className="btn-close" onClick={() => setDetail(null)}></button>
               </div>
               <div className="modal-body">
                 <p>{detail.message}</p>
-                {detail.attachments?.length > 0 && (
+                {detail.attachments.length > 0 && (
                   <div>
                     <h6>Attachments:</h6>
                     <ul>
                       {detail.attachments.map((a, i) => (
                         <li key={i}>
-                          <a href={`http://localhost:5007${a.url}`} target="_blank" rel="noreferrer">
+                          <a href={a.url} target="_blank" rel="noreferrer">
                             {a.name}
                           </a>
                         </li>
                       ))}
                     </ul>
-                  </div>
+                  </>
                 )}
+                <h6>Replies:</h6>
+                <ul>
+                  {detail.replies.map((r) => (
+                    <li key={r.id}>
+                      <strong>{r.sender}</strong>: {r.message}{" "}
+                      <span className="small text-muted">({new Date(r.dateTime).toLocaleString()})</span>
+                    </li>
+                  ))}
+                  {detail.replies.length === 0 && <li className="small text-muted">No replies yet.</li>}
+                </ul>
               </div>
               <div className="modal-footer">
                 <button className="btn btn-secondary" onClick={() => setDetail(null)}>
@@ -331,6 +356,65 @@ export default function Communication() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function ContactForm({ onSend, onBack }) {
+  const [receiver, setReceiver] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [attachments, setAttachments] = useState([]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!receiver || !subject || !message) return alert("All fields required");
+    onSend({
+      sender: "student123",
+      receiver,
+      subject,
+      message,
+      attachments,
+    });
+  };
+
+  return (
+    <div className="card p-3">
+      <h5>📩 Send Message</h5>
+      <form onSubmit={handleSubmit}>
+        <select
+          className="form-select mb-2"
+          value={receiver}
+          onChange={(e) => setReceiver(e.target.value)}
+        >
+          <option value="">Select Receiver</option>
+          <option value="Admin">Admin</option>
+          <option value="Mr. Smith (Teacher)">Mr. Smith (Teacher)</option>
+        </select>
+        <input
+          className="form-control mb-2"
+          placeholder="Subject"
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+        />
+        <textarea
+          className="form-control mb-2"
+          placeholder="Message"
+          rows="4"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+        ></textarea>
+        <input
+          type="file"
+          multiple
+          className="form-control mb-2"
+          onChange={(e) => setAttachments([...e.target.files])}
+        />
+        <button className="btn btn-primary me-2">Send</button>
+        <button type="button" className="btn btn-secondary" onClick={onBack}>
+          Back
+        </button>
+      </form>
     </div>
   );
 }

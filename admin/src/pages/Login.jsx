@@ -17,7 +17,7 @@ export default function Login({ setLoggedInAdmin }) {
 
     try {
       // Fetch admin list from API
-      const response = await axios.get("http://localhost:5000/api/admins");
+      const response = await axios.get("http://localhost:5008/api/admins");
       const admins = response.data; // Expecting an array of admin objects
 
       // Find matching admin by email & password

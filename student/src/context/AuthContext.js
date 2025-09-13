@@ -6,17 +6,11 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [student, setStudent] = useState(null);
 
-  const login = async (email, password) => {
+  // ✅ Login using rollNo & password
+  const login = async (rollNo, password) => {
     try {
-      // Fetch all students from the backend
-      const res = await axios.get("http://localhost:5000/api/students");
-      const students = res.data;
-
-      // Find matching credentials
-      const found = students.find(
-        (s) => s.email === email && s.password === password
-      );
-
+      const { data } = await axios.get("http://localhost:5008/api/students");
+      const found = data.find((s) => s.rollNo === rollNo && s.password === password);
       if (found) {
         setStudent(found);
         return true;

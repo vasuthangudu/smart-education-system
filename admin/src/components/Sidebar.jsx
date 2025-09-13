@@ -9,6 +9,8 @@ function Sidebar({ setLoggedInAdmin }) {
     { path: "/", label: "Dashboard", icon: "bi-house" },
     { path: "/users", label: "Users", icon: "bi-people" },
     { path: "/students", label: "Students", icon: "bi-people" },
+    { path: "/attendance", label: "Students Attendance", icon: "bi-people" },
+
     { path: "/courses", label: "Courses", icon: "bi-book" },
     { path: "/timetable", label: "Timetable", icon: "bi-calendar-event" },
     { path: "/exams", label: "Exams", icon: "bi-pencil-square" },
