@@ -9,7 +9,7 @@ import Courses from "./pages/Courses";
 import Timetable from "./pages/Timetable";
 import Assignments from "./pages/Assignments";
 import Exams from "./pages/Exams";
-import StudentReports from "./pages/StudentReports";
+
 import Communication from "./pages/Communication";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -121,7 +121,7 @@ export default function App() {
               <Route path="/timetable" element={<Timetable />} />
               <Route path="/assignments" element={<Assignments />} />
               <Route path="/exams" element={<Exams />} />
-              <Route path="/student-reports" element={<StudentReports />} />
+              
               <Route path="/communication" element={<Communication />} />
             </Routes>
           )}

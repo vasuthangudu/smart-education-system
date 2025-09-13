@@ -4,155 +4,169 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
-const fs = require("fs");
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = 5007;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// File upload storage (for attachments)
-const uploadDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) =>
-    cb(null, Date.now() + "-" + file.originalname.replace(/\s+/g, "_")),
-});
-const upload = multer({ storage });
-
-// MongoDB connection
+// ------------------ MongoDB Connection ------------------
 mongoose
-  .connect("mongodb://127.0.0.1:27017/communicationDB", {
+  .connect("mongodb://127.0.0.1:27017/educationDB", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log("✅ MongoDB Connected"))
-  .catch((err) => {
-    console.error("❌ MongoDB connection error:", err);
-    process.exit(1);
-  });
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch((err) => console.error("❌ MongoDB error:", err));
 
-// =============================
-// Schema & Models
-// =============================
-
-// Messages schema
+// ------------------ Schemas ------------------
 const messageSchema = new mongoose.Schema(
   {
     sender: String,
     receiver: String,
     subject: String,
     message: String,
-    attachments: [
-      {
-        name: String,
-        url: String,
-      },
-    ],
     read: { type: Boolean, default: false },
     pinned: { type: Boolean, default: false },
+    attachments: [{ name: String, url: String }],
   },
   { timestamps: true }
 );
-
 const Message = mongoose.model("Message", messageSchema);
 
-// Notifications schema (optional, if still needed)
-const notificationSchema = new mongoose.Schema(
-  {
-    type: { type: String, enum: ["announcement", "event"], required: true },
-    message: { type: String, required: true },
-    date: { type: String, required: true },
-    audience: { type: String, enum: ["All", "Students", "Teachers"], default: "All" },
-  },
-  { timestamps: true }
-);
-const Notification = mongoose.model("Notification", notificationSchema);
-
-// =============================
-// Routes
-// =============================
-app.get("/", (req, res) => res.send("✅ API running"));
-
-// -------- Messages API --------
-
-// GET all messages
-app.get("/api/messages", async (req, res) => {
-  try {
-    const msgs = await Message.find().sort({ createdAt: -1 });
-    res.json(msgs);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+const submissionSchema = new mongoose.Schema({
+  student: String,
+  subject: String,
+  teacher: String,
+  description: String,
+  files: [String],
+  submittedAt: { type: Date, default: Date.now },
 });
 
-// POST new message with optional attachments
-app.post("/api/messages", upload.array("attachments"), async (req, res) => {
+const assignmentSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  subject: { type: String, required: true },
+  teacher: String,
+  description: String,
+  dueDate: Date,
+  resources: [String],
+  maxMarks: Number,
+  submissions: [submissionSchema],
+});
+const Assignment = mongoose.model("Assignment", assignmentSchema);
+
+// ------------------ Multer Setup ------------------
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "uploads/"),
+  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
+});
+const upload = multer({ storage });
+
+// ------------------ Message Routes ------------------
+app.get("/api/messages", async (req, res) => {
   try {
-    const { sender, receiver, subject, message } = req.body;
-
-    if (!receiver || !subject || !message) {
-      return res.status(400).json({ success: false, error: "Missing fields" });
-    }
-
-    const attachments =
-      (req.files || []).map((f) => ({
-        name: f.originalname,
-        url: `/uploads/${f.filename}`,
-      })) || [];
-
-    const newMsg = new Message({ sender, receiver, subject, message, attachments });
-    const saved = await newMsg.save();
-
-    res.status(201).json({ success: true, data: saved });
+    const messages = await Message.find().sort({ createdAt: -1 });
+    res.json(messages);
   } catch (err) {
-    console.error("Error saving message:", err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-// -------- Notifications API (if still needed) --------
-app.get("/api/notifications", async (req, res) => {
+app.post("/api/messages", upload.array("attachments"), async (req, res) => {
   try {
-    const items = await Notification.find().sort({ createdAt: -1 });
-    res.json(items);
+    const attachments = req.files
+      ? req.files.map((file) => ({ name: file.originalname, url: `/uploads/${file.filename}` }))
+      : [];
+    const msg = new Message({
+      sender: req.body.sender,
+      receiver: req.body.receiver,
+      subject: req.body.subject,
+      message: req.body.message,
+      attachments,
+    });
+    await msg.save();
+    res.json({ success: true, data: msg });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to save message" });
+  }
+});
+
+app.delete("/api/messages/:id", async (req, res) => {
+  try {
+    const deleted = await Message.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ success: false, error: "Message not found" });
+    res.json({ success: true });
+  } catch {
+    res.status(500).json({ success: false, error: "Failed to delete message" });
+  }
+});
+
+// ------------------ Assignment Routes ------------------
+app.get("/api/assignments", async (req, res) => {
+  try {
+    const assignments = await Assignment.find();
+    res.json(assignments);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.post("/api/notifications", async (req, res) => {
+app.post("/api/assignments", async (req, res) => {
   try {
-    const { type, message, date, audience } = req.body;
-    if (!type || !message || !date) {
-      return res.status(400).json({ error: "type, message, date required" });
-    }
-    const newNote = new Notification({ type, message, date, audience });
-    const saved = await newNote.save();
-    res.status(201).json(saved);
+    const newAssignment = new Assignment(req.body);
+    await newAssignment.save();
+    res.status(201).json(newAssignment);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(400).json({ error: err.message });
   }
 });
 
-app.delete("/api/notifications/:id", async (req, res) => {
+app.put("/api/assignments/:id", async (req, res) => {
   try {
-    const deleted = await Notification.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ error: "Not found" });
+    const updated = await Assignment.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updated) return res.status(404).json({ error: "Assignment not found" });
+    res.json(updated);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.delete("/api/assignments/:id", async (req, res) => {
+  try {
+    const deleted = await Assignment.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: "Assignment not found" });
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(400).json({ error: err.message });
   }
 });
 
-// =============================
-// Static files for uploaded attachments
-// =============================
-app.use("/uploads", express.static(uploadDir));
+app.post("/api/assignments/:id/submit", async (req, res) => {
+  try {
+    const assignment = await Assignment.findById(req.params.id);
+    if (!assignment) return res.status(404).json({ error: "Assignment not found" });
+    assignment.submissions.push(req.body);
+    await assignment.save();
+    res.json(assignment);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
 
-// Start server
-app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
+app.get("/api/assignments/:id/submissions", async (req, res) => {
+  try {
+    const assignment = await Assignment.findById(req.params.id);
+    if (!assignment) return res.status(404).json({ error: "Assignment not found" });
+    res.json(assignment.submissions);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// ------------------ Start Server ------------------
+app.listen(PORT, () => {
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
+});

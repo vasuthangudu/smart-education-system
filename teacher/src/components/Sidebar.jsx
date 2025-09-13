@@ -71,16 +71,7 @@ export default function Sidebar({ onLogout }) {
             Exams
           </NavLink>
         </li>
-        <li className="nav-item mb-2">
-          <NavLink
-            to="/student-reports"
-            className={({ isActive }) =>
-              `nav-link ${isActive ? "active bg-primary text-white" : "text-white"}`
-            }
-          >
-            Student Reports
-          </NavLink>
-        </li>
+        
         <li className="nav-item mb-3">
           <NavLink
             to="/communication"
