@@ -1,40 +1,37 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// Mock data (replace with API later)
-const initialAssignments = [
-  {
-    id: 1,
-    title: "Math Algebra Basics",
-    subject: "Math",
-    teacher: "Mr. Smith",
-    dueDate: "2025-09-15T23:59",
-    description: "Solve algebra problems from Chapter 3.",
-    resources: ["AlgebraBasics.pdf"],
-    maxMarks: 20,
-  },
-  {
-    id: 2,
-    title: "Science Lab Report",
-    subject: "Science",
-    teacher: "Dr. Adams",
-    dueDate: "2025-09-20T18:00",
-    description: "Submit your lab experiment report on acids and bases.",
-    resources: [],
-    maxMarks: 25,
-  },
-];
+const API_URL = "http://localhost:5007/api/assignments";
 
 export default function Assignments() {
-  const [assignments, setAssignments] = useState(initialAssignments);
+  const [assignments, setAssignments] = useState([]);
   const [submissions, setSubmissions] = useState([]);
-  const [view, setView] = useState("list"); // "list" or "submit" or "submissions"
+  const [view, setView] = useState("list"); // "list", "submit", "submissions"
   const [filterSubject, setFilterSubject] = useState("All");
   const [filterTeacher, setFilterTeacher] = useState("All");
+  const [currentAssignment, setCurrentAssignment] = useState(null);
 
-  // Load submissions from localStorage
+  // Fetch assignments from backend
+  useEffect(() => {
+    fetchAssignments();
+  }, []);
+
+  const fetchAssignments = async () => {
+    try {
+      const res = await axios.get(API_URL);
+      setAssignments(res.data);
+      if (res.data.length > 0 && !currentAssignment) {
+        setCurrentAssignment(res.data[0]);
+      }
+    } catch (err) {
+      toast.error("Failed to fetch assignments.");
+    }
+  };
+
+  // Fetch submissions from localStorage
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("submissions")) || [];
     setSubmissions(saved);
@@ -45,22 +42,36 @@ export default function Assignments() {
     localStorage.setItem("submissions", JSON.stringify(submissions));
   }, [submissions]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!currentAssignment) {
+      toast.warning("Please select an assignment first!");
+      return;
+    }
     const form = e.target;
+    const files = form.files.files ? Array.from(form.files.files).map(f => f.name) : [];
     const newSubmission = {
       id: Date.now(),
-      title: form.title.value,
-      subject: form.subject.value,
-      teacher: form.teacher.value,
+      student: form.student.value,
+      subject: currentAssignment.subject,
+      teacher: currentAssignment.teacher,
       description: form.description.value,
-      files: form.files.files ? Array.from(form.files.files).map(f => f.name) : [],
+      files,
       submittedAt: new Date().toISOString(),
     };
+
+    // Save to local state
     setSubmissions([...submissions, newSubmission]);
-    toast.success("Assignment submitted successfully!");
-    form.reset();
-    setView("submissions");
+
+    // Optionally send to backend
+    try {
+      await axios.post(`${API_URL}/${currentAssignment._id}/submit`, newSubmission);
+      toast.success("Assignment submitted successfully!");
+      form.reset();
+      setView("submissions");
+    } catch {
+      toast.error("Failed to submit assignment.");
+    }
   };
 
   const filteredAssignments = assignments.filter((a) => {
@@ -70,6 +81,7 @@ export default function Assignments() {
   });
 
   const getTimeRemaining = (dueDate) => {
+    if (!dueDate) return "No due date";
     const diff = new Date(dueDate) - new Date();
     if (diff <= 0) return "Overdue";
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -91,7 +103,12 @@ export default function Assignments() {
         </button>
         <button
           className={`btn me-2 ${view === "submit" ? "btn-success" : "btn-outline-success"}`}
-          onClick={() => setView("submit")}
+          onClick={() => {
+            if (!currentAssignment && assignments.length > 0) {
+              setCurrentAssignment(assignments[0]);
+            }
+            setView("submit");
+          }}
         >
           Submit Assignment
         </button>
@@ -115,8 +132,9 @@ export default function Assignments() {
                 onChange={(e) => setFilterSubject(e.target.value)}
               >
                 <option value="All">All Subjects</option>
-                <option value="Math">Math</option>
-                <option value="Science">Science</option>
+                {[...new Set(assignments.map(a => a.subject))].map((subj) => (
+                  <option key={subj} value={subj}>{subj}</option>
+                ))}
               </select>
             </div>
             <div className="col-md-3">
@@ -126,37 +144,38 @@ export default function Assignments() {
                 onChange={(e) => setFilterTeacher(e.target.value)}
               >
                 <option value="All">All Teachers</option>
-                <option value="Mr. Smith">Mr. Smith</option>
-                <option value="Dr. Adams">Dr. Adams</option>
+                {[...new Set(assignments.map(a => a.teacher))].map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
               </select>
             </div>
           </div>
 
           <div className="row">
             {filteredAssignments.map((a) => (
-              <div className="col-md-6 mb-3" key={a.id}>
-                <div className="card shadow-sm">
+              <div className="col-md-6 mb-3" key={a._id}>
+                <div
+                  className={`card shadow-sm ${currentAssignment && currentAssignment._id === a._id ? "border-primary" : ""}`}
+                  onClick={() => setCurrentAssignment(a)}
+                  style={{ cursor: "pointer" }}
+                >
                   <div className="card-body">
                     <h5>{a.title}</h5>
                     <p className="text-muted mb-1">
                       Subject: {a.subject} | Teacher: {a.teacher}
                     </p>
-                    <p className="mb-1">Due: {new Date(a.dueDate).toLocaleString()}</p>
+                    <p className="mb-1">Due: {a.dueDate ? new Date(a.dueDate).toLocaleString() : "No due date"}</p>
                     <span
-                      className={`badge ${
-                        getTimeRemaining(a.dueDate) === "Overdue" ? "bg-danger" : "bg-warning text-dark"
-                      }`}
+                      className={`badge ${getTimeRemaining(a.dueDate) === "Overdue" ? "bg-danger" : "bg-warning text-dark"}`}
                     >
                       {getTimeRemaining(a.dueDate)}
                     </span>
                     <p className="mt-2">{a.description}</p>
-                    {a.resources.length > 0 && (
+                    {a.resources && a.resources.length > 0 && (
                       <ul>
                         {a.resources.map((r, i) => (
                           <li key={i}>
-                            <a href={`/${r}`} download>
-                              {r}
-                            </a>
+                            <a href={`/${r}`} download>{r}</a>
                           </li>
                         ))}
                       </ul>
@@ -170,28 +189,12 @@ export default function Assignments() {
       )}
 
       {/* Submit Assignment Form */}
-      {view === "submit" && (
+      {view === "submit" && currentAssignment ? (
         <form onSubmit={handleSubmit} className="card p-4 shadow-sm">
-          <h4 className="mb-3 text-success">✍️ Submit Your Assignment</h4>
+          <h4 className="mb-3 text-success">✍️ Submit: {currentAssignment.title}</h4>
           <div className="mb-3">
-            <label className="form-label">Assignment Title</label>
-            <input type="text" name="title" className="form-control" required />
-          </div>
-          <div className="mb-3">
-            <label className="form-label">Subject</label>
-            <select name="subject" className="form-select" required>
-              <option value="">Select Subject</option>
-              <option value="Math">Math</option>
-              <option value="Science">Science</option>
-            </select>
-          </div>
-          <div className="mb-3">
-            <label className="form-label">Teacher Name</label>
-            <select name="teacher" className="form-select" required>
-              <option value="">Select Teacher</option>
-              <option value="Mr. Smith">Mr. Smith</option>
-              <option value="Dr. Adams">Dr. Adams</option>
-            </select>
+            <label className="form-label">Your Name</label>
+            <input type="text" name="student" className="form-control" required />
           </div>
           <div className="mb-3">
             <label className="form-label">Description / Notes</label>
@@ -205,7 +208,9 @@ export default function Assignments() {
             Submit Assignment
           </button>
         </form>
-      )}
+      ) : view === "submit" && !currentAssignment ? (
+        <p className="text-muted">Please select an assignment to submit.</p>
+      ) : null}
 
       {/* Submissions Page */}
       {view === "submissions" && (

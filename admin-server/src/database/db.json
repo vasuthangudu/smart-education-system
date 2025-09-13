@@ -1,0 +1,28 @@
+{
+  "announcements": [
+    {
+      "id": 1,
+      "message": "Welcome back to the new semester!",
+      "date": "2025-09-01",
+      "audience": "Students"
+    },
+    {
+      "id": 2,
+      "message": "dhybsuibh sn",
+      "date": "2025-09-12",
+      "audience": "Teachers"
+    }
+  ],
+  "events": [
+    {
+      "id": 1,
+      "message": "Faculty meeting at 10 AM",
+      "date": "2025-09-15",
+      "audience": "Teachers"
+    }
+  ],
+  "nextId": {
+    "announcements": 3,
+    "events": 2
+  }
+}
