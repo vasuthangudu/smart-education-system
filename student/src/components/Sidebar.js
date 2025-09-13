@@ -1,3 +1,4 @@
+// src/components/Sidebar.jsx
 import React from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -6,10 +7,10 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 export default function Sidebar() {
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation(); // Get current path
+  const location = useLocation();
 
   const handleLogout = () => {
-    logout(); // Clear authentication state
+    logout(); // Clear auth state
     navigate("/login"); // Redirect to login page
   };
 
@@ -29,68 +30,84 @@ export default function Sidebar() {
     >
       <div>
         <h4 className="text-center mb-4">🎓 Student</h4>
+
         <Link
           to="/"
           className={`d-block px-3 py-2 text-decoration-none rounded mb-1 ${
             isActive("/") ? "bg-primary text-white" : "text-light"
           }`}
         >
-          <i className="bi bi-house"></i> Dashboard
+          <i className="bi bi-house me-2"></i> Dashboard
         </Link>
+
         <Link
           to="/profile"
           className={`d-block px-3 py-2 text-decoration-none rounded mb-1 ${
             isActive("/profile") ? "bg-primary text-white" : "text-light"
           }`}
         >
-          <i className="bi bi-person"></i> Profile
+          <i className="bi bi-person me-2"></i> Profile
         </Link>
+
+        <Link
+          to="/attendance"
+          className={`d-block px-3 py-2 text-decoration-none rounded mb-1 ${
+            isActive("/attendance") ? "bg-primary text-white" : "text-light"
+          }`}
+        >
+          <i className="bi bi-person-check me-2"></i> Attendance
+        </Link>
+
         <Link
           to="/courses"
           className={`d-block px-3 py-2 text-decoration-none rounded mb-1 ${
             isActive("/courses") ? "bg-primary text-white" : "text-light"
           }`}
         >
-          <i className="bi bi-book"></i> My Courses
+          <i className="bi bi-book me-2"></i> My Courses
         </Link>
+
         <Link
           to="/assignments"
           className={`d-block px-3 py-2 text-decoration-none rounded mb-1 ${
             isActive("/assignments") ? "bg-primary text-white" : "text-light"
           }`}
         >
-          <i className="bi bi-pencil-square"></i> Assignments
+          <i className="bi bi-pencil-square me-2"></i> Assignments
         </Link>
+
         <Link
           to="/progress"
           className={`d-block px-3 py-2 text-decoration-none rounded mb-1 ${
             isActive("/progress") ? "bg-primary text-white" : "text-light"
           }`}
         >
-          <i className="bi bi-bar-chart"></i> Progress
+          <i className="bi bi-bar-chart me-2"></i> Progress
         </Link>
+
         <Link
           to="/communication"
           className={`d-block px-3 py-2 text-decoration-none rounded mb-1 ${
             isActive("/communication") ? "bg-primary text-white" : "text-light"
           }`}
         >
-          <i className="bi bi-chat-dots"></i> Communication
+          <i className="bi bi-chat-dots me-2"></i> Communication
         </Link>
+
         <Link
           to="/notifications"
           className={`d-block px-3 py-2 text-decoration-none rounded mb-1 ${
             isActive("/notifications") ? "bg-primary text-white" : "text-light"
           }`}
         >
-          <i className="bi bi-bell"></i> Notifications
+          <i className="bi bi-bell me-2"></i> Notifications
         </Link>
       </div>
 
       {/* Logout Button */}
       <div className="text-center">
         <button onClick={handleLogout} className="btn btn-danger w-75 mt-3">
-          <i className="bi bi-box-arrow-right"></i> Logout
+          <i className="bi bi-box-arrow-right me-2"></i> Logout
         </button>
       </div>
     </div>

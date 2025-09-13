@@ -55,7 +55,7 @@ export default function Topbar() {
               />
               <div className="d-flex flex-column">
                 <strong>{student?.name || "Admin"}</strong>
-                <small className="text-muted">{student?.email || "admin@example.com"}</small>
+                <small className="text-muted">{student?.rollNo || "admin@example.com"}</small>
               </div>
             </Dropdown.Toggle>
 

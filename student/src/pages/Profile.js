@@ -18,7 +18,8 @@ export default function Profile() {
     const fetchStudent = async () => {
       try {
         const { data } = await axios.get("http://localhost:5000/api/students");
-        const fresh = data.find((s) => s._id === student._id);
+        // ✅ Match by _id for updates and rollNo for consistency
+        const fresh = data.find((s) => s._id === student._id || s.rollNo === student.rollNo);
         setDetails(fresh || student);
       } catch (err) {
         console.error("Failed to fetch student:", err);
@@ -81,7 +82,7 @@ export default function Profile() {
             <div className="border rounded p-3 bg-light">
               <h5 className="fw-bold">Basic Information</h5>
               <p>
-                <strong>Email:</strong> {details.email}
+                <strong>Roll Number:</strong> {details.rollNo}
               </p>
               <p>
                 <strong>Father's Name:</strong> {details.fatherName}
@@ -107,11 +108,6 @@ export default function Profile() {
             </div>
           </div>
         </div>
-
-        {/* Raw JSON for debugging (optional) */}
-        {/* <pre className="bg-dark text-white p-3 rounded mt-3">
-          {JSON.stringify(details, null, 2)}
-        </pre> */}
       </div>
     </div>
   );
