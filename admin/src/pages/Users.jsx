@@ -1,8 +1,19 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Tabs, Tab, Button, Table, Form, Row, Col, Image, Spinner, Alert } from "react-bootstrap";
+import {
+  Tabs,
+  Tab,
+  Button,
+  Table,
+  Form,
+  Row,
+  Col,
+  Image,
+  Spinner,
+  Alert,
+} from "react-bootstrap";
 import axios from "axios";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "http://localhost:5008/api"; // server port 5008
 
 export default function Users() {
   const [users, setUsers] = useState({ student: [], teacher: [], admin: [] });
@@ -14,6 +25,7 @@ export default function Users() {
   const [loading, setLoading] = useState(false);
   const [alertMsg, setAlertMsg] = useState("");
 
+  // Fetch all users
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -34,8 +46,11 @@ export default function Users() {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
+  // Image upload
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -47,10 +62,12 @@ export default function Users() {
     reader.readAsDataURL(file);
   };
 
+  // Form submit
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     const tab = activeTab;
-    // Validation for admins
+
+    // Validation
     if (tab === "admin" && (!formData.fullName || !formData.email)) {
       setAlertMsg("Full Name and Email are required for Admins.");
       return;
@@ -59,9 +76,22 @@ export default function Users() {
       setAlertMsg("Name and Email are required for Teachers.");
       return;
     }
-    if (tab === "student" && (!formData.name || !formData.email)) {
-      setAlertMsg("Name and Email are required for Students.");
+    if (tab === "student" && (!formData.name || !formData.rollNo)) {
+      setAlertMsg("Name and Roll No are required for Students.");
       return;
+    }
+
+    // Unique Roll No check for students
+    if (tab === "student") {
+      const duplicate = users.student.find(
+        (s) =>
+          s.rollNo === formData.rollNo &&
+          (!editingItem || s._id !== editingItem._id)
+      );
+      if (duplicate) {
+        setAlertMsg("Roll No must be unique!");
+        return;
+      }
     }
 
     try {
@@ -106,8 +136,9 @@ export default function Users() {
         !q ||
         u.name?.toLowerCase().includes(q) ||
         u.fullName?.toLowerCase().includes(q) ||
-        u.email?.toLowerCase().includes(q) ||
-        u.department?.toLowerCase().includes(q)
+        u.rollNo?.toLowerCase()?.includes(q) ||
+        u.email?.toLowerCase()?.includes(q) ||
+        u.department?.toLowerCase()?.includes(q)
     );
   }, [users, activeTab, searchQuery]);
 
@@ -115,7 +146,7 @@ export default function Users() {
     student: [
       { key: "name", label: "Name" },
       { key: "fatherName", label: "Father Name" },
-      { key: "email", label: "Email" },
+      { key: "rollNo", label: "Roll No" },
       { key: "password", label: "Password", type: "password" },
       { key: "gender", label: "Gender" },
       { key: "dob", label: "Date of Birth", type: "date" },
@@ -173,7 +204,9 @@ export default function Users() {
         </Col>
       </Row>
 
-      <h5 className="mt-4">{editingItem ? `Edit ${activeTab}` : `Add New ${activeTab}`}</h5>
+      <h5 className="mt-4">
+        {editingItem ? `Edit ${activeTab}` : `Add New ${activeTab}`}
+      </h5>
       <Form onSubmit={handleFormSubmit} className="border p-3 rounded bg-light">
         <Row>
           {formFields[activeTab].map(({ key, label, type }) => (
@@ -182,7 +215,9 @@ export default function Users() {
               <Form.Control
                 type={type || "text"}
                 value={formData[key] || ""}
-                onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, [key]: e.target.value })
+                }
               />
             </Col>
           ))}
@@ -216,20 +251,36 @@ export default function Users() {
               <th>#</th>
               {activeTab === "student" && (
                 <>
-                  <th>Name</th><th>Father</th><th>Email</th><th>Department</th>
-                  <th>DOB</th><th>Gender</th><th>Profile</th><th>Actions</th>
+                  <th>Name</th>
+                  <th>Father</th>
+                  <th>Roll No</th>
+                  <th>Department</th>
+                  <th>DOB</th>
+                  <th>Gender</th>
+                  <th>Profile</th>
+                  <th>Actions</th>
                 </>
               )}
               {activeTab === "teacher" && (
                 <>
-                  <th>Name</th><th>Email</th><th>Phone</th>
-                  <th>Department</th><th>Position</th><th>Profile</th><th>Actions</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Department</th>
+                  <th>Position</th>
+                  <th>Profile</th>
+                  <th>Actions</th>
                 </>
               )}
               {activeTab === "admin" && (
                 <>
-                  <th>Full Name</th><th>Email</th><th>Phone</th>
-                  <th>Employee ID</th><th>Department</th><th>Profile</th><th>Actions</th>
+                  <th>Full Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Employee ID</th>
+                  <th>Department</th>
+                  <th>Profile</th>
+                  <th>Actions</th>
                 </>
               )}
             </tr>
@@ -240,28 +291,75 @@ export default function Users() {
                 <td>{idx + 1}</td>
                 {activeTab === "student" && (
                   <>
-                    <td>{u.name}</td><td>{u.fatherName}</td><td>{u.email}</td>
-                    <td>{u.department}</td><td>{u.dob}</td><td>{u.gender}</td>
-                    <td>{u.profileImage && <Image src={u.profileImage} style={{ width: 40, height: 40 }} rounded />}</td>
+                    <td>{u.name}</td>
+                    <td>{u.fatherName}</td>
+                    <td>{u.rollNo}</td>
+                    <td>{u.department}</td>
+                    <td>{u.dob}</td>
+                    <td>{u.gender}</td>
+                    <td>
+                      {u.profileImage && (
+                        <Image
+                          src={u.profileImage}
+                          style={{ width: 40, height: 40 }}
+                          rounded
+                        />
+                      )}
+                    </td>
                   </>
                 )}
                 {activeTab === "teacher" && (
                   <>
-                    <td>{u.name}</td><td>{u.email}</td><td>{u.phone}</td>
-                    <td>{u.department}</td><td>{u.position}</td>
-                    <td>{u.profileImage && <Image src={u.profileImage} style={{ width: 40, height: 40 }} rounded />}</td>
+                    <td>{u.name}</td>
+                    <td>{u.email}</td>
+                    <td>{u.phone}</td>
+                    <td>{u.department}</td>
+                    <td>{u.position}</td>
+                    <td>
+                      {u.profileImage && (
+                        <Image
+                          src={u.profileImage}
+                          style={{ width: 40, height: 40 }}
+                          rounded
+                        />
+                      )}
+                    </td>
                   </>
                 )}
                 {activeTab === "admin" && (
                   <>
-                    <td>{u.fullName}</td><td>{u.email}</td><td>{u.phone}</td>
-                    <td>{u.employeeId}</td><td>{u.department}</td>
-                    <td>{u.profileImage && <Image src={u.profileImage} style={{ width: 40, height: 40 }} rounded />}</td>
+                    <td>{u.fullName}</td>
+                    <td>{u.email}</td>
+                    <td>{u.phone}</td>
+                    <td>{u.employeeId}</td>
+                    <td>{u.department}</td>
+                    <td>
+                      {u.profileImage && (
+                        <Image
+                          src={u.profileImage}
+                          style={{ width: 40, height: 40 }}
+                          rounded
+                        />
+                      )}
+                    </td>
                   </>
                 )}
                 <td>
-                  <Button size="sm" variant="info" className="me-2" onClick={() => handleEdit(u)}>Edit</Button>
-                  <Button size="sm" variant="danger" onClick={() => handleDeleteUser(u._id)}>Delete</Button>
+                  <Button
+                    size="sm"
+                    variant="info"
+                    className="me-2"
+                    onClick={() => handleEdit(u)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    onClick={() => handleDeleteUser(u._id)}
+                  >
+                    Delete
+                  </Button>
                 </td>
               </tr>
             ))}

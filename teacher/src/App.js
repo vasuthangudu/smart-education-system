@@ -9,6 +9,7 @@ import Courses from "./pages/Courses";
 import Timetable from "./pages/Timetable";
 import Assignments from "./pages/Assignments";
 import Exams from "./pages/Exams";
+import Attendance from "./pages/Attendance";
 import StudentReports from "./pages/StudentReports";
 import Communication from "./pages/Communication";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -24,7 +25,7 @@ export default function App() {
   // 🔹 Fetch teacher data from backend
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/teachers")
+      .get("http://localhost:5008/api/teachers")
       .then((res) => {
         setTeachers(res.data);
         setLoading(false);
@@ -118,6 +119,7 @@ export default function App() {
                 element={<Profile teacher={loggedTeacher} />}
               />
               <Route path="/courses" element={<Courses />} />
+              <Route path="/attendance" element={<Attendance/>} />
               <Route path="/timetable" element={<Timetable />} />
               <Route path="/assignments" element={<Assignments />} />
               <Route path="/exams" element={<Exams />} />
