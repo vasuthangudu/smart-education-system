@@ -1,0 +1,28 @@
+{
+  "announcements": [
+    {
+      "id": 9,
+      "message": "byvgh",
+      "date": "2025-09-26",
+      "audience": "Students"
+    },
+    {
+      "id": 10,
+      "message": "VYVDB",
+      "date": "2025-09-19",
+      "audience": "All"
+    }
+  ],
+  "events": [
+    {
+      "id": 3,
+      "message": "sh ns",
+      "date": "2025-09-19",
+      "audience": "Teachers"
+    }
+  ],
+  "nextId": {
+    "announcements": 11,
+    "events": 4
+  }
+}
