@@ -1,0 +1,38 @@
+{
+  "students": [
+    {
+      "roll": "11111111111",
+      "password": "122222222222"
+    }
+  ],
+  "quizzes": [
+    {
+      "id": "1757801266219",
+      "title": "eeeeeeeeeeeee",
+      "startAt": "2025-09-14T03:37",
+      "endAt": "2025-09-14T06:39",
+      "questions": [
+        {
+          "text": "rrrrrrrrrrrr",
+          "options": [
+            "a",
+            "b",
+            "c",
+            "d"
+          ],
+          "correctIndex": 0
+        },
+        {
+          "text": "eeeeeee",
+          "options": [
+            "yyyyyyyyyy",
+            "ddddd",
+            "rrrr",
+            "ccccccc"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ]
+}

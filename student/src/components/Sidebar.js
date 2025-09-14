@@ -67,6 +67,17 @@ export default function Sidebar() {
           <i className="bi bi-book me-2"></i> My Courses
         </Link>
 
+
+        <Link
+          to="/exam"
+          className={`d-block px-3 py-2 text-decoration-none rounded mb-1 ${
+            isActive("/courses") ? "bg-primary text-white" : "text-light"
+          }`}
+        >
+          <i className="bi bi-book me-2"></i> Exam
+        </Link>        
+
+
         <Link
           to="/assignments"
           className={`d-block px-3 py-2 text-decoration-none rounded mb-1 ${

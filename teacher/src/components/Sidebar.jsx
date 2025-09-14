@@ -96,6 +96,17 @@ export default function Sidebar({ onLogout }) {
             Communication
           </NavLink>
         </li>
+
+           <li className="nav-item mb-3">
+          <NavLink
+            to="/notifications"
+            className={({ isActive }) =>
+              `nav-link ${isActive ? "active bg-primary text-white" : "text-white"}`
+            }
+          >
+           Notifications
+          </NavLink>
+        </li>
       </ul>
 
       {/* Logout Button */}

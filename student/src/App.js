@@ -12,6 +12,7 @@ import Communication from "./pages/Communication";
 import Notifications from "./pages/Notifications";
 import StudentLogin from "./pages/StudentLogin";
 import Attendance from "./pages/Attendance";
+import Exam from "./pages/Exam";
 
 const Layout = ({ children }) => {
   const location = useLocation();
@@ -45,6 +46,7 @@ export default function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/attendance" element={<Attendance />} />
             <Route path="/courses" element={<MyCourses />} />
+              <Route path="/exam" element={<Exam />} />
             <Route path="/assignments" element={<Assignments />} />
             <Route path="/progress" element={<Progress />} />
             <Route path="/communication" element={<Communication />} />
