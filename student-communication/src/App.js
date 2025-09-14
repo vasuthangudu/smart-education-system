@@ -55,7 +55,7 @@ app.get("/api/messages", async (req, res) => {
 });
 
 // Post new message
-app.post("/api/messages", upload.array("attachments"), async (req, res) => {
+app.post("/api/messages", upload.array("attachments"), async (req, res) => { 
   try {
     const { sender, receiver, subject, message } = req.body;
     if (!receiver || !subject || !message) {

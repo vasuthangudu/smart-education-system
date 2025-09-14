@@ -15,7 +15,7 @@ import Communication from "./pages/Communication";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./index.css";
-
+import Notifications from "./pages/Notifications";
 export default function App() {
   const [teachers, setTeachers] = useState([]);
   const [loggedTeacher, setLoggedTeacher] = useState(null);
@@ -120,6 +120,8 @@ export default function App() {
               />
               <Route path="/courses" element={<Courses />} />
               <Route path="/attendance" element={<Attendance/>} />
+              <Route path="/notifications" element={<Notifications/>} />
+
               <Route path="/timetable" element={<Timetable />} />
               <Route path="/assignments" element={<Assignments />} />
               <Route path="/exams" element={<Exams />} />
