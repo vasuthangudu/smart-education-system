@@ -1,235 +1,332 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
-// Mock data
-const initialAssignments = [
-  {
-    id: 1,
-    title: "Math Algebra Basics",
-    subject: "Math",
-    dueDate: "2025-09-15T23:59",
-    description: "Solve algebra problems from Chapter 3.",
-    resources: ["AlgebraBasics.pdf"],
-    maxMarks: 20,
-    submissions: [
-      { student: "Alice Johnson", files: ["Algebra1.pdf"], submittedAt: "2025-09-14T10:00" },
-      { student: "Bob Smith", files: [], submittedAt: null },
-    ],
-  },
-  {
-    id: 2,
-    title: "Science Lab Report",
-    subject: "Science",
-    dueDate: "2025-09-20T18:00",
-    description: "Submit your lab experiment report on acids and bases.",
-    resources: [],
-    maxMarks: 25,
-    submissions: [
-      { student: "Alice Johnson", files: ["LabReport.pdf"], submittedAt: "2025-09-19T16:00" },
-      { student: "Bob Smith", files: [], submittedAt: null },
-    ],
-  },
-];
+const API_URL = "http://localhost:5003/api/submissions";
 
 export default function Assignments() {
-  const [assignments, setAssignments] = useState(initialAssignments);
+  const [assignments, setAssignments] = useState([]);
   const [view, setView] = useState("list"); // list | add
-  const [filterSubject, setFilterSubject] = useState("All");
-  const [editingAssignment, setEditingAssignment] = useState(null);
-  const [modalAssignment, setModalAssignment] = useState({
+  const [role, setRole] = useState("student"); // student | teacher
+  const [currentStudent] = useState("John Doe"); // simulate logged-in student
+  const [alert, setAlert] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [modalAssignment, setModalAssignment] = useState({ 
     title: "",
     subject: "",
     description: "",
     dueDate: "",
     maxMarks: 0,
-    resources: [],
+    files: [],
   });
-  const [alert, setAlert] = useState(null);
 
   const showAlert = (type, text) => {
     setAlert({ type, text });
     setTimeout(() => setAlert(null), 3000);
   };
 
-  const handleSaveAssignment = (e) => {
+  const fetchAssignments = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(API_URL);
+      setAssignments(res.data);
+    } catch (err) {
+      console.error(err);
+      showAlert("danger", "Failed to fetch assignments!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAssignments();
+  }, []);
+
+  const handleSaveAssignment = async (e) => {
     e.preventDefault();
-    if (!modalAssignment.title || !modalAssignment.subject || !modalAssignment.dueDate) {
+    if (!modalAssignment.title || !modalAssignment.subject) {
       showAlert("danger", "Please fill all required fields!");
       return;
     }
+    try {
+      const formData = new FormData();
+      formData.append("title", modalAssignment.title);
+      formData.append("subject", modalAssignment.subject);
+      formData.append("description", modalAssignment.description);
+      formData.append("teacher", modalAssignment.teacher || "Teacher");
+      formData.append("dueDate", modalAssignment.dueDate);
+      formData.append("maxMarks", modalAssignment.maxMarks);
 
-    if (editingAssignment) {
-      setAssignments(assignments.map(a => a.id === editingAssignment.id ? { ...editingAssignment, ...modalAssignment } : a));
-      showAlert("success", "Assignment updated successfully!");
-    } else {
-      const newAssignment = { ...modalAssignment, id: Date.now(), submissions: [] };
-      setAssignments([...assignments, newAssignment]);
-      showAlert("success", "Assignment added successfully!");
+      if (modalAssignment.files.length > 0) {
+        Array.from(modalAssignment.files).forEach((file) =>
+          formData.append("files", file)
+        );
+      }
+
+      await axios.post(API_URL, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      showAlert("success", "Assignment submitted successfully!");
+      setModalAssignment({
+        title: "",
+        subject: "",
+        description: "",
+        dueDate: "",
+        maxMarks: 0,
+        files: [],
+      });
+      setView("list");
+      fetchAssignments();
+    } catch (err) {
+      console.error(err);
+      showAlert("danger", "Failed to submit assignment!");
     }
-
-    setModalAssignment({ title: "", subject: "", description: "", dueDate: "", maxMarks: 0, resources: [] });
-    setEditingAssignment(null);
-    setView("list");
   };
 
-  const handleEdit = (assignment) => {
-    setEditingAssignment(assignment);
-    setModalAssignment({
-      title: assignment.title,
-      subject: assignment.subject,
-      description: assignment.description,
-      dueDate: assignment.dueDate,
-      maxMarks: assignment.maxMarks,
-      resources: assignment.resources,
-    });
-    setView("add");
+  const handleFileChange = (e) => {
+    setModalAssignment({ ...modalAssignment, files: e.target.files });
   };
 
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this assignment?")) {
-      setAssignments(assignments.filter(a => a.id !== id));
-      showAlert("info", "Assignment deleted.");
-    }
-  };
+  const renderSubmissions = (subs) => {
+    if (!subs || subs.length === 0)
+      return <span className="text-muted">No submissions</span>;
 
-  const handleResourcesChange = (e) => {
-    const resources = e.target.value.split(",").map(r => r.trim());
-    setModalAssignment({ ...modalAssignment, resources });
+    return (
+      <ul className="list-unstyled mb-0">
+        {subs.map((s, idx) => (
+          <li
+            key={idx}
+            className={
+              role === "student" && s.studentName === currentStudent
+                ? "fw-bold text-primary"
+                : ""
+            }
+          >
+            <i className="bi bi-person-fill me-1"></i>
+            {s.studentName} – {s.fileName}{" "}
+            <span
+              className={`badge ms-1 ${
+                s.marksAwarded ? "bg-success" : "bg-warning text-dark"
+              }`}
+            >
+              {s.marksAwarded ?? "Pending"}
+            </span>
+          </li>
+        ))}
+      </ul>
+    );
   };
-
-  const filteredAssignments = assignments.filter(a => filterSubject === "All" || a.subject === filterSubject);
 
   return (
     <div className="container my-4">
-      <h2 className="text-primary mb-4">📝 Teacher Assignments</h2>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="text-primary">📘 Assignments</h2>
+        <div>
+          <label className="fw-semibold me-2">Role:</label>
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            className="form-select d-inline-block w-auto"
+          >
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+          </select>
+        </div>
+      </div>
 
-      {/* Alert */}
       {alert && (
-        <div className={`alert alert-${alert.type} alert-dismissible fade show`} role="alert">
+        <div
+          className={`alert alert-${alert.type} alert-dismissible fade show`}
+          role="alert"
+        >
           {alert.text}
-          <button type="button" className="btn-close" onClick={() => setAlert(null)}></button>
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setAlert(null)}
+          ></button>
         </div>
       )}
 
-      {/* Navigation */}
-      <div className="mb-4">
-        <button className={`btn me-2 ${view === "list" ? "btn-primary" : "btn-outline-primary"}`} onClick={() => setView("list")}>
-          Assignment List
-        </button>
-        <button className={`btn ${view === "add" ? "btn-success" : "btn-outline-success"}`} onClick={() => setView("add")}>
-          {editingAssignment ? "Edit Assignment" : "Add New Assignment"}
-        </button>
-      </div>
-
-      {/* Assignment List */}
       {view === "list" && (
         <>
-          <div className="mb-3 row g-2">
-            <div className="col-md-3">
-              <select className="form-select" value={filterSubject} onChange={(e) => setFilterSubject(e.target.value)}>
-                <option value="All">All Subjects</option>
-                <option value="Math">Math</option>
-                <option value="Science">Science</option>
-              </select>
-            </div>
-          </div>
+          {role === "teacher" && (
+            <button
+              className="btn btn-success mb-3"
+              onClick={() => setView("add")}
+            >
+              ➕ Add Assignment
+            </button>
+          )}
 
-          {filteredAssignments.length === 0 ? (
+          {loading ? (
+            <p>Loading assignments...</p>
+          ) : assignments.length === 0 ? (
             <p className="text-muted">No assignments found.</p>
           ) : (
-            <div className="row">
-              {filteredAssignments.map((a) => (
-                <div key={a.id} className="col-md-6 mb-3">
-                  <div className="card shadow-sm">
-                    <div className="card-body">
-                      <h5>{a.title}</h5>
-                      <p className="mb-1 text-muted">Subject: {a.subject} | Due: {new Date(a.dueDate).toLocaleString()}</p>
-                      <p>{a.description}</p>
-                      {a.resources.length > 0 && (
-                        <ul>
-                          {a.resources.map((r, i) => (
-                            <li key={i}>{r}</li>
-                          ))}
-                        </ul>
-                      )}
-                      <p className="small text-muted">Max Marks: {a.maxMarks}</p>
+            <div className="table-responsive">
+              <table className="table table-striped table-hover shadow-sm">
+                <thead className="table-dark">
+                  <tr>
+                    <th>Title</th>
+                    <th>Subject</th>
+                    <th>Teacher</th>
+                    <th>Due Date</th>
+                    <th>Description</th>
+                    <th>
+                      {role === "teacher"
+                        ? "Student Submissions"
+                        : "Your Submission"}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {assignments.map((a) => {
+                    const submissions =
+                      role === "student"
+                        ? a.submissions?.filter(
+                            (s) => s.studentName === currentStudent
+                          )
+                        : a.submissions;
 
-                      <div className="mt-2">
-                        <button className="btn btn-sm btn-outline-info me-2" onClick={() => handleEdit(a)}>Edit</button>
-                        <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(a.id)}>Delete</button>
-                      </div>
-
-                      {/* Submissions */}
-                      <div className="mt-3">
-                        <h6>Submissions:</h6>
-                        {a.submissions.length === 0 ? (
-                          <p className="text-muted">No submissions yet.</p>
-                        ) : (
-                          <ul className="list-group list-group-flush">
-                            {a.submissions.map((s, i) => (
-                              <li key={i} className="list-group-item d-flex justify-content-between align-items-center">
-                                {s.student}
-                                {s.submittedAt ? (
-                                  <span className="badge bg-success">Submitted</span>
-                                ) : (
-                                  <span className="badge bg-warning text-dark">Pending</span>
-                                )}
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                    return (
+                      <tr key={a._id}>
+                        <td className="fw-semibold">{a.title}</td>
+                        <td>{a.subject}</td>
+                        <td>{a.teacher || "N/A"}</td>
+                        <td>
+                          {a.dueDate
+                            ? new Date(a.dueDate).toLocaleString()
+                            : "—"}
+                        </td>
+                        <td>{a.description}</td>
+                        <td>
+                          {a.files && a.files.length > 0 ? (
+                            <ul className="list-unstyled mb-0">
+                              {a.files.map((file, i) => (
+                                <li key={i}>
+                                  <a
+                                    href={`http://localhost:5003/uploads/${file}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                  >
+                                    {file}
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            "—"
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
         </>
       )}
 
-      {/* Add/Edit Assignment Page */}
-      {view === "add" && (
+      {view === "add" && role === "teacher" && (
         <div className="card p-4 shadow-sm">
-          <h4 className="mb-3 text-success">{editingAssignment ? "✏️ Edit Assignment" : "➕ Add New Assignment"}</h4>
+          <h4 className="mb-3 text-success">➕ Add New Assignment</h4>
           <form onSubmit={handleSaveAssignment}>
             <div className="mb-3">
               <label className="form-label">Title</label>
-              <input type="text" className="form-control" value={modalAssignment.title} onChange={(e) => setModalAssignment({ ...modalAssignment, title: e.target.value })} required />
+              <input
+                type="text"
+                className="form-control"
+                value={modalAssignment.title}
+                onChange={(e) =>
+                  setModalAssignment({ ...modalAssignment, title: e.target.value })
+                }
+                required
+              />
             </div>
             <div className="mb-3">
               <label className="form-label">Subject</label>
-              <select className="form-select" value={modalAssignment.subject} onChange={(e) => setModalAssignment({ ...modalAssignment, subject: e.target.value })} required>
+              <select
+                className="form-select"
+                value={modalAssignment.subject}
+                onChange={(e) =>
+                  setModalAssignment({
+                    ...modalAssignment,
+                    subject: e.target.value,
+                  })
+                }
+                required
+              >
                 <option value="">Select Subject</option>
                 <option value="Math">Math</option>
                 <option value="Science">Science</option>
               </select>
             </div>
             <div className="mb-3">
-              <label className="form-label">Due Date</label>
-              <input type="datetime-local" className="form-control" value={modalAssignment.dueDate} onChange={(e) => setModalAssignment({ ...modalAssignment, dueDate: e.target.value })} required />
+              <label className="form-label">Description</label>
+              <textarea
+                className="form-control"
+                rows="3"
+                value={modalAssignment.description}
+                onChange={(e) =>
+                  setModalAssignment({
+                    ...modalAssignment,
+                    description: e.target.value,
+                  })
+                }
+              ></textarea>
             </div>
             <div className="mb-3">
-              <label className="form-label">Description</label>
-              <textarea className="form-control" rows="3" value={modalAssignment.description} onChange={(e) => setModalAssignment({ ...modalAssignment, description: e.target.value })}></textarea>
+              <label className="form-label">Due Date</label>
+              <input
+                type="datetime-local"
+                className="form-control"
+                value={modalAssignment.dueDate}
+                onChange={(e) =>
+                  setModalAssignment({
+                    ...modalAssignment,
+                    dueDate: e.target.value,
+                  })
+                }
+              />
             </div>
             <div className="mb-3">
               <label className="form-label">Max Marks</label>
-              <input type="number" className="form-control" value={modalAssignment.maxMarks} onChange={(e) => setModalAssignment({ ...modalAssignment, maxMarks: e.target.value })} />
+              <input
+                type="number"
+                className="form-control"
+                value={modalAssignment.maxMarks}
+                onChange={(e) =>
+                  setModalAssignment({
+                    ...modalAssignment,
+                    maxMarks: e.target.value,
+                  })
+                }
+              />
             </div>
             <div className="mb-3">
-              <label className="form-label">Resources (comma separated)</label>
-              <input type="text" className="form-control" value={modalAssignment.resources.join(", ")} onChange={handleResourcesChange} />
+              <label className="form-label">Upload Files</label>
+              <input
+                type="file"
+                className="form-control"
+                multiple
+                onChange={handleFileChange}
+              />
             </div>
 
-            <div className="d-flex gap-2 mt-3">
-              <button type="submit" className="btn btn-success">
-                {editingAssignment ? "Update Assignment" : "Add Assignment"}
-              </button>
-              <button type="button" className="btn btn-outline-secondary" onClick={() => { setView("list"); setEditingAssignment(null); }}>
-                Cancel
-              </button>
-            </div>
+            <button type="submit" className="btn btn-success">
+              Submit Assignment
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline-secondary ms-2"
+              onClick={() => setView("list")}
+            >
+              Cancel
+            </button>
           </form>
         </div>
       )}

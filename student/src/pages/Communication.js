@@ -12,7 +12,7 @@ export default function Communication() {
 
   // Fetch messages from backend
   useEffect(() => {
-    fetch("http://localhost:5001/api/messages")
+    fetch("http://localhost:5003/api/messages")
       .then((res) => res.json())
       .then((data) => setMessages(data))
       .catch((err) => console.error("Error fetching:", err));
@@ -52,7 +52,7 @@ export default function Communication() {
     });
     (newMsg.attachments || []).forEach((file) => formData.append("attachments", file));
 
-    const res = await fetch("http://localhost:5001/api/messages", {
+    const res = await fetch("http://localhost:5003/api/messages", {
       method: "POST",
       body: formData,
     });
@@ -207,7 +207,7 @@ export default function Communication() {
                     <ul>
                       {detail.attachments.map((a, i) => (
                         <li key={i}>
-                          <a href={`http://localhost:5001${a.url}`} target="_blank" rel="noreferrer">
+                          <a href={`http://localhost:5003${a.url}`} target="_blank" rel="noreferrer">
                             {a.name}
                           </a>
                         </li>

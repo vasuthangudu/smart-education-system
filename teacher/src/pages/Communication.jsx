@@ -1,46 +1,9 @@
-import React, { useState, useMemo } from "react";
+// Communication.jsx
+import React, { useState, useEffect, useMemo } from "react";
+import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-// Sample messages data
-const messagesData = {
-  messages: [
-    {
-      id: "msg1",
-      sender: "Admin",
-      receiver: "student123",
-      subject: "Campus Closure",
-      message: "Campus will be closed on Sept 22 for maintenance.",
-      attachments: [{ name: "schedule.pdf", url: "/resources/schedule.pdf" }],
-      priority: "Urgent",
-      category: "Announcement",
-      dateTime: "2025-09-10T09:00:00",
-      read: false,
-      pinned: true,
-      replies: [
-        {
-          id: "r1",
-          sender: "student123",
-          message: "Thanks for the info.",
-          dateTime: "2025-09-10T10:00:00",
-        },
-      ],
-    },
-    {
-      id: "msg2",
-      sender: "Mr. Smith (Teacher)",
-      receiver: "student123",
-      subject: "Assignment Reminder",
-      message: "Submit your Physics assignment by Sept 18.",
-      attachments: [],
-      priority: "Normal",
-      category: "Assignment",
-      dateTime: "2025-09-09T12:30:00",
-      read: false,
-      pinned: false,
-      replies: [],
-    },
-  ],
-};
+const API = "http://localhost:5005/api/messages";
 
 // Contact Form Component
 function ContactForm({ onSend, onBack }) {
@@ -51,36 +14,34 @@ function ContactForm({ onSend, onBack }) {
 
   const handleFileChange = (e) => setAttachments([...e.target.files]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!receiver || !subject || !message) {
       alert("Please fill all required fields.");
       return;
     }
 
-    const newMsg = {
-      id: `msg${Date.now()}`,
-      sender: "student123",
-      receiver,
-      subject,
-      message,
-      attachments: attachments.map((file) => ({
-        name: file.name,
-        url: URL.createObjectURL(file),
-      })),
-      priority: "Normal",
-      category: "Query",
-      dateTime: new Date().toISOString(),
-      read: false,
-      pinned: false,
-      replies: [],
-    };
+    try {
+      const formData = new FormData();
+      formData.append("sender", "student123"); // Change as needed
+      formData.append("receiver", receiver);
+      formData.append("subject", subject);
+      formData.append("message", message);
+      attachments.forEach((file) => formData.append("attachments", file));
 
-    onSend(newMsg);
-    setReceiver("");
-    setSubject("");
-    setMessage("");
-    setAttachments([]);
+      const res = await axios.post(API, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      onSend(res.data);
+      setReceiver("");
+      setSubject("");
+      setMessage("");
+      setAttachments([]);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to send message");
+    }
   };
 
   return (
@@ -102,8 +63,7 @@ function ContactForm({ onSend, onBack }) {
           >
             <option value="">Select</option>
             <option value="Admin">Admin</option>
-            <option value="Mr. Smith (Teacher)">Mr. Smith (Teacher)</option>
-            <option value="Mrs. Johnson (Teacher)">Mrs. Johnson (Teacher)</option>
+            <option value="Student">Student</option>
           </select>
         </div>
 
@@ -149,7 +109,7 @@ function ContactForm({ onSend, onBack }) {
 
 // Main Communication Component
 export default function Communication() {
-  const [messages, setMessages] = useState(messagesData.messages);
+  const [messages, setMessages] = useState([]);
   const [showContactForm, setShowContactForm] = useState(false);
   const [query, setQuery] = useState("");
   const [senderFilter, setSenderFilter] = useState("All");
@@ -157,16 +117,45 @@ export default function Communication() {
   const [sortBy, setSortBy] = useState("newest");
   const [detail, setDetail] = useState(null);
 
-  const toggleRead = (id) => {
-    setMessages((msgs) =>
-      msgs.map((m) => (m.id === id ? { ...m, read: !m.read } : m))
-    );
+  // Fetch messages from backend
+  const fetchMessages = async () => {
+    try {
+      const res = await axios.get(API);
+      setMessages(res.data);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to fetch messages");
+    }
   };
 
-  const togglePin = (id) => {
-    setMessages((msgs) =>
-      msgs.map((m) => (m.id === id ? { ...m, pinned: !m.pinned } : m))
-    );
+  useEffect(() => {
+    fetchMessages();
+  }, []);
+
+  const toggleRead = async (id) => {
+    const msg = messages.find((m) => m._id === id);
+    if (!msg) return;
+    try {
+      await axios.patch(`${API}/${id}`, { read: !msg.read });
+      setMessages((prev) =>
+        prev.map((m) => (m._id === id ? { ...m, read: !m.read } : m))
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const togglePin = async (id) => {
+    const msg = messages.find((m) => m._id === id);
+    if (!msg) return;
+    try {
+      await axios.patch(`${API}/${id}`, { pinned: !msg.pinned });
+      setMessages((prev) =>
+        prev.map((m) => (m._id === id ? { ...m, pinned: !m.pinned } : m))
+      );
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const filtered = useMemo(() => {
@@ -181,7 +170,8 @@ export default function Communication() {
     if (categoryFilter !== "All") list = list.filter((m) => m.category === categoryFilter);
     if (sortBy === "newest") list.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
     if (sortBy === "oldest") list.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
-    if (sortBy === "priority") list.sort((a, b) => (a.priority === "Urgent" ? -1 : 1));
+    if (sortBy === "priority")
+      list.sort((a, b) => (a.priority === "Urgent" ? -1 : 1));
     return list;
   }, [messages, query, senderFilter, categoryFilter, sortBy]);
 
@@ -189,7 +179,6 @@ export default function Communication() {
 
   const handleSendMessage = (newMsg) => {
     setMessages([newMsg, ...messages]);
-    alert("Message sent successfully!");
     setShowContactForm(false);
   };
 
@@ -204,7 +193,7 @@ export default function Communication() {
         <div>
           <span className="badge bg-primary me-2">Unread: {unreadCount}</span>
           <button className="btn btn-sm btn-success" onClick={() => setShowContactForm(true)}>
-            Contact Admin / Teacher
+            Contact Admin / Student
           </button>
         </div>
       </div>
@@ -226,7 +215,7 @@ export default function Communication() {
         >
           <option>All</option>
           <option>Admin</option>
-          <option>Teacher</option>
+          <option>Student</option>
         </select>
         <select
           className="form-select form-select-sm"
@@ -256,7 +245,7 @@ export default function Communication() {
         <div className="col-lg-8">
           {filtered.length === 0 && <div className="alert alert-info">No messages found.</div>}
           {filtered.map((m) => (
-            <div key={m.id} className={`card mb-2 ${!m.read ? "border-primary" : ""}`}>
+            <div key={m._id} className={`card mb-2 ${!m.read ? "border-primary" : ""}`}>
               <div className="card-body d-flex justify-content-between align-items-start">
                 <div>
                   <h6 style={{ fontWeight: !m.read ? 700 : 500 }}>
@@ -267,12 +256,12 @@ export default function Communication() {
                   <div>{m.message.length > 100 ? m.message.slice(0, 100) + "…" : m.message}</div>
                 </div>
                 <div className="text-end">
-                  <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => toggleRead(m.id)}>
+                  <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => toggleRead(m._id)}>
                     {!m.read ? "Mark Read" : "Mark Unread"}
                   </button>
                   <button
                     className={`btn btn-sm ${m.pinned ? "btn-success" : "btn-outline-success"} me-1`}
-                    onClick={() => togglePin(m.id)}
+                    onClick={() => togglePin(m._id)}
                   >
                     {m.pinned ? "Pinned" : "Pin"}
                   </button>
@@ -291,7 +280,7 @@ export default function Communication() {
             <h6>Pinned Messages</h6>
             <ul className="list-unstyled">
               {messages.filter((m) => m.pinned).map((m) => (
-                <li key={m.id} className="mb-2">
+                <li key={m._id} className="mb-2">
                   <strong>{m.subject}</strong>
                   <div className="small text-muted">{new Date(m.dateTime).toLocaleString()}</div>
                 </li>
@@ -324,7 +313,7 @@ export default function Communication() {
                     <ul>
                       {detail.attachments.map((a, i) => (
                         <li key={i}>
-                          <a href={a.url} target="_blank" rel="noreferrer">
+                          <a href={`http://localhost:5005${a.url}`} target="_blank" rel="noreferrer">
                             {a.name}
                           </a>
                         </li>
@@ -335,7 +324,7 @@ export default function Communication() {
                 <h6>Replies:</h6>
                 <ul>
                   {detail.replies.map((r) => (
-                    <li key={r.id}>
+                    <li key={r._id || r.id}>
                       <strong>{r.sender}</strong>: {r.message}{" "}
                       <span className="small text-muted">({new Date(r.dateTime).toLocaleString()})</span>
                     </li>

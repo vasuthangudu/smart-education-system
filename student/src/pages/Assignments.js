@@ -1,66 +1,70 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// Mock data (replace with API later)
-const initialAssignments = [
-  {
-    id: 1,
-    title: "Math Algebra Basics",
-    subject: "Math",
-    teacher: "Mr. Smith",
-    dueDate: "2025-09-15T23:59",
-    description: "Solve algebra problems from Chapter 3.",
-    resources: ["AlgebraBasics.pdf"],
-    maxMarks: 20,
-  },
-  {
-    id: 2,
-    title: "Science Lab Report",
-    subject: "Science",
-    teacher: "Dr. Adams",
-    dueDate: "2025-09-20T18:00",
-    description: "Submit your lab experiment report on acids and bases.",
-    resources: [],
-    maxMarks: 25,
-  },
-];
-
 export default function Assignments() {
-  const [assignments, setAssignments] = useState(initialAssignments);
-  const [submissions, setSubmissions] = useState([]);
-  const [view, setView] = useState("list"); // "list" or "submit" or "submissions"
+  const [assignments, setAssignments] = useState([]);        // Teacher assignments
+  const [submissions, setSubmissions] = useState([]);        // Student submissions
+  const [view, setView] = useState("list");                  // list | submit | submissions | teacher
   const [filterSubject, setFilterSubject] = useState("All");
   const [filterTeacher, setFilterTeacher] = useState("All");
 
-  // Load submissions from localStorage
+  const SUBMISSIONS_API = "http://localhost:5003/api/submissions";
+  const TEACHER_API = "http://localhost:5003/api/assignments";
+
+  // Fetch teacher assignments and student submissions
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("submissions")) || [];
-    setSubmissions(saved);
+    fetchTeacherAssignments();
+    fetchSubmissions();
   }, []);
 
-  // Save submissions to localStorage
-  useEffect(() => {
-    localStorage.setItem("submissions", JSON.stringify(submissions));
-  }, [submissions]);
+  const fetchTeacherAssignments = async () => {
+    try {
+      const res = await axios.get(TEACHER_API);
+      setAssignments(res.data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch teacher assignments");
+    }
+  };
 
-  const handleSubmit = (e) => {
+  const fetchSubmissions = async () => {
+    try {
+      const res = await axios.get(SUBMISSIONS_API);
+      setSubmissions(res.data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch submissions");
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const form = e.target;
-    const newSubmission = {
-      id: Date.now(),
-      title: form.title.value,
-      subject: form.subject.value,
-      teacher: form.teacher.value,
-      description: form.description.value,
-      files: form.files.files ? Array.from(form.files.files).map(f => f.name) : [],
-      submittedAt: new Date().toISOString(),
-    };
-    setSubmissions([...submissions, newSubmission]);
-    toast.success("Assignment submitted successfully!");
-    form.reset();
-    setView("submissions");
+    const formData = new FormData();
+    formData.append("title", form.title.value);
+    formData.append("subject", form.subject.value);
+    formData.append("teacher", form.teacher.value);
+    formData.append("description", form.description.value);
+
+    if (form.files.files.length > 0) {
+      Array.from(form.files.files).forEach((file) => formData.append("files", file));
+    }
+
+    try {
+      const res = await axios.post(SUBMISSIONS_API, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setSubmissions([res.data, ...submissions]);
+      toast.success("Assignment submitted successfully!");
+      form.reset();
+      setView("submissions");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to submit assignment");
+    }
   };
 
   const filteredAssignments = assignments.filter((a) => {
@@ -79,7 +83,7 @@ export default function Assignments() {
 
   return (
     <div className="container my-4">
-      <h2 className="text-primary mb-4">📋 Student Assignments</h2>
+      <h2 className="text-primary mb-4">📋 Assignments Portal</h2>
 
       {/* Navigation Buttons */}
       <div className="mb-4">
@@ -87,7 +91,7 @@ export default function Assignments() {
           className={`btn me-2 ${view === "list" ? "btn-primary" : "btn-outline-primary"}`}
           onClick={() => setView("list")}
         >
-          View Assignments
+          View Teacher Assignments
         </button>
         <button
           className={`btn me-2 ${view === "submit" ? "btn-success" : "btn-outline-success"}`}
@@ -96,17 +100,22 @@ export default function Assignments() {
           Submit Assignment
         </button>
         <button
-          className={`btn ${view === "submissions" ? "btn-info" : "btn-outline-info"}`}
+          className={`btn me-2 ${view === "submissions" ? "btn-info" : "btn-outline-info"}`}
           onClick={() => setView("submissions")}
         >
           My Submissions
         </button>
+        <button
+          className={`btn ${view === "teacher" ? "btn-warning" : "btn-outline-warning"}`}
+          onClick={() => setView("teacher")}
+        >
+          Teacher Submissions Data
+        </button>
       </div>
 
-      {/* Assignment List */}
+      {/* Teacher Assignments */}
       {view === "list" && (
         <>
-          {/* Filters */}
           <div className="row g-2 mb-3">
             <div className="col-md-3">
               <select
@@ -133,38 +142,48 @@ export default function Assignments() {
           </div>
 
           <div className="row">
-            {filteredAssignments.map((a) => (
-              <div className="col-md-6 mb-3" key={a.id}>
-                <div className="card shadow-sm">
-                  <div className="card-body">
-                    <h5>{a.title}</h5>
-                    <p className="text-muted mb-1">
-                      Subject: {a.subject} | Teacher: {a.teacher}
-                    </p>
-                    <p className="mb-1">Due: {new Date(a.dueDate).toLocaleString()}</p>
-                    <span
-                      className={`badge ${
-                        getTimeRemaining(a.dueDate) === "Overdue" ? "bg-danger" : "bg-warning text-dark"
-                      }`}
-                    >
-                      {getTimeRemaining(a.dueDate)}
-                    </span>
-                    <p className="mt-2">{a.description}</p>
-                    {a.resources.length > 0 && (
-                      <ul>
-                        {a.resources.map((r, i) => (
-                          <li key={i}>
-                            <a href={`/${r}`} download>
-                              {r}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+            {filteredAssignments.length === 0 ? (
+              <p className="text-muted">No teacher assignments found.</p>
+            ) : (
+              filteredAssignments.map((a) => (
+                <div className="col-md-6 mb-3" key={a._id || a.id}>
+                  <div className="card shadow-sm">
+                    <div className="card-body">
+                      <h5>{a.title}</h5>
+                      <p className="text-muted mb-1">
+                        Subject: {a.subject} | Teacher: {a.teacher}
+                      </p>
+                      {a.dueDate && (
+                        <>
+                          <p className="mb-1">Due: {new Date(a.dueDate).toLocaleString()}</p>
+                          <span
+                            className={`badge ${
+                              getTimeRemaining(a.dueDate) === "Overdue"
+                                ? "bg-danger"
+                                : "bg-warning text-dark"
+                            }`}
+                          >
+                            {getTimeRemaining(a.dueDate)}
+                          </span>
+                        </>
+                      )}
+                      <p className="mt-2">{a.description}</p>
+                      {a.resources && a.resources.length > 0 && (
+                        <ul>
+                          {a.resources.map((r, i) => (
+                            <li key={i}>
+                              <a href={`http://localhost:5003/uploads/${r}`} download>
+                                {r}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </>
       )}
@@ -207,7 +226,7 @@ export default function Assignments() {
         </form>
       )}
 
-      {/* Submissions Page */}
+      {/* My Submissions */}
       {view === "submissions" && (
         <div>
           <h4 className="text-info mb-3">📑 My Submissions</h4>
@@ -216,7 +235,7 @@ export default function Assignments() {
           ) : (
             <div className="list-group">
               {submissions.map((s) => (
-                <div key={s.id} className="list-group-item">
+                <div key={s._id} className="list-group-item">
                   <h6>{s.title}</h6>
                   <p className="mb-1">
                     Subject: {s.subject} | Teacher: {s.teacher}
@@ -227,13 +246,55 @@ export default function Assignments() {
                   {s.files.length > 0 && (
                     <ul className="small">
                       {s.files.map((f, i) => (
-                        <li key={i}>{f}</li>
+                        <li key={i}>
+                          <a
+                            href={`http://localhost:5003/uploads/${f}`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {f}
+                          </a>
+                        </li>
                       ))}
                     </ul>
                   )}
                 </div>
               ))}
             </div>
+          )}
+        </div>
+      )}
+
+      {/* Teacher Submissions Data */}
+      {view === "teacher" && (
+        <div>
+          <h4 className="text-warning mb-3">👩‍🏫 Teacher Submission Data</h4>
+          {assignments.length === 0 ? (
+            <p className="text-muted">No teacher submissions available.</p>
+          ) : (
+            assignments.map((a) => (
+              <div key={a._id} className="list-group-item mb-2">
+                <h6>{a.title}</h6>
+                <p className="mb-1">
+                  Subject: {a.subject} | Teacher: {a.teacher}
+                </p>
+                {a.files && a.files.length > 0 && (
+                  <ul>
+                    {a.files.map((f, i) => (
+                      <li key={i}>
+                        <a
+                          href={`http://localhost:5003/uploads/${f}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {f}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))
           )}
         </div>
       )}
