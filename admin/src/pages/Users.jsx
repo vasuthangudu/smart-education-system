@@ -10,10 +10,13 @@ import {
   Image,
   Spinner,
   Alert,
+  Pagination,
 } from "react-bootstrap";
 import axios from "axios";
+import "./Users.css"; // Custom styles for gradients & 3D effects
 
 const API_BASE = "http://localhost:5008/api"; // server port 5008
+const ITEMS_PER_PAGE = 10;
 
 export default function Users() {
   const [users, setUsers] = useState({ student: [], teacher: [], admin: [] });
@@ -24,8 +27,8 @@ export default function Users() {
   const [previewImage, setPreviewImage] = useState("");
   const [loading, setLoading] = useState(false);
   const [alertMsg, setAlertMsg] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Fetch all users
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -50,7 +53,6 @@ export default function Users() {
     fetchData();
   }, []);
 
-  // Image upload
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -62,12 +64,10 @@ export default function Users() {
     reader.readAsDataURL(file);
   };
 
-  // Form submit
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     const tab = activeTab;
 
-    // Validation
     if (tab === "admin" && (!formData.fullName || !formData.email)) {
       setAlertMsg("Full Name and Email are required for Admins.");
       return;
@@ -81,7 +81,6 @@ export default function Users() {
       return;
     }
 
-    // Unique Roll No check for students
     if (tab === "student") {
       const duplicate = users.student.find(
         (s) =>
@@ -142,6 +141,13 @@ export default function Users() {
     );
   }, [users, activeTab, searchQuery]);
 
+  const paginatedData = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredList.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredList, currentPage]);
+
+  const totalPages = Math.ceil(filteredList.length / ITEMS_PER_PAGE);
+
   const formFields = {
     student: [
       { key: "name", label: "Name" },
@@ -172,8 +178,8 @@ export default function Users() {
   };
 
   return (
-    <div className="p-3">
-      <h4 className="text-primary mb-3">Users Management</h4>
+    <div className="p-3 users-page">
+      <h4 className="gradient-text mb-3">Users Management</h4>
       {alertMsg && (
         <Alert variant="info" dismissible onClose={() => setAlertMsg("")}>
           {alertMsg}
@@ -187,7 +193,9 @@ export default function Users() {
           setEditingItem(null);
           setSearchQuery("");
           setPreviewImage("");
+          setCurrentPage(1);
         }}
+        className="custom-tabs"
       >
         <Tab eventKey="student" title="Students" />
         <Tab eventKey="teacher" title="Teachers" />
@@ -204,10 +212,10 @@ export default function Users() {
         </Col>
       </Row>
 
-      <h5 className="mt-4">
+      <h5 className="mt-4 gradient-text">
         {editingItem ? `Edit ${activeTab}` : `Add New ${activeTab}`}
       </h5>
-      <Form onSubmit={handleFormSubmit} className="border p-3 rounded bg-light">
+      <Form onSubmit={handleFormSubmit} className="border p-3 rounded form-3d">
         <Row>
           {formFields[activeTab].map(({ key, label, type }) => (
             <Col md={4} className="mb-2" key={key}>
@@ -235,7 +243,7 @@ export default function Users() {
             )}
           </Col>
         </Row>
-        <Button type="submit" className="mt-2">
+        <Button type="submit" className="btn-3d mt-2">
           {editingItem ? "Update" : "Add"}
         </Button>
       </Form>
@@ -245,126 +253,148 @@ export default function Users() {
           <Spinner animation="border" />
         </div>
       ) : (
-        <Table striped bordered hover responsive className="mt-3">
-          <thead>
-            <tr>
-              <th>#</th>
-              {activeTab === "student" && (
-                <>
-                  <th>Name</th>
-                  <th>Father</th>
-                  <th>Roll No</th>
-                  <th>Department</th>
-                  <th>DOB</th>
-                  <th>Gender</th>
-                  <th>Profile</th>
-                  <th>Actions</th>
-                </>
-              )}
-              {activeTab === "teacher" && (
-                <>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Phone</th>
-                  <th>Department</th>
-                  <th>Position</th>
-                  <th>Profile</th>
-                  <th>Actions</th>
-                </>
-              )}
-              {activeTab === "admin" && (
-                <>
-                  <th>Full Name</th>
-                  <th>Email</th>
-                  <th>Phone</th>
-                  <th>Employee ID</th>
-                  <th>Department</th>
-                  <th>Profile</th>
-                  <th>Actions</th>
-                </>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {filteredList.map((u, idx) => (
-              <tr key={u._id || idx}>
-                <td>{idx + 1}</td>
+        <>
+          <Table
+            striped
+            bordered
+            hover
+            responsive
+            className="mt-3 shadow-sm table-3d"
+          >
+            <thead className="table-gradient">
+              <tr>
+                <th>#</th>
                 {activeTab === "student" && (
                   <>
-                    <td>{u.name}</td>
-                    <td>{u.fatherName}</td>
-                    <td>{u.rollNo}</td>
-                    <td>{u.department}</td>
-                    <td>{u.dob}</td>
-                    <td>{u.gender}</td>
-                    <td>
-                      {u.profileImage && (
-                        <Image
-                          src={u.profileImage}
-                          style={{ width: 40, height: 40 }}
-                          rounded
-                        />
-                      )}
-                    </td>
+                    <th>Name</th>
+                    <th>Father</th>
+                    <th>Roll No</th>
+                    <th>Department</th>
+                    <th>DOB</th>
+                    <th>Gender</th>
+                    <th>Profile</th>
+                    <th>Actions</th>
                   </>
                 )}
                 {activeTab === "teacher" && (
                   <>
-                    <td>{u.name}</td>
-                    <td>{u.email}</td>
-                    <td>{u.phone}</td>
-                    <td>{u.department}</td>
-                    <td>{u.position}</td>
-                    <td>
-                      {u.profileImage && (
-                        <Image
-                          src={u.profileImage}
-                          style={{ width: 40, height: 40 }}
-                          rounded
-                        />
-                      )}
-                    </td>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Department</th>
+                    <th>Position</th>
+                    <th>Profile</th>
+                    <th>Actions</th>
                   </>
                 )}
                 {activeTab === "admin" && (
                   <>
-                    <td>{u.fullName}</td>
-                    <td>{u.email}</td>
-                    <td>{u.phone}</td>
-                    <td>{u.employeeId}</td>
-                    <td>{u.department}</td>
-                    <td>
-                      {u.profileImage && (
-                        <Image
-                          src={u.profileImage}
-                          style={{ width: 40, height: 40 }}
-                          rounded
-                        />
-                      )}
-                    </td>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Employee ID</th>
+                    <th>Department</th>
+                    <th>Profile</th>
+                    <th>Actions</th>
                   </>
                 )}
-                <td>
-                  <Button
-                    size="sm"
-                    variant="info"
-                    className="me-2"
-                    onClick={() => handleEdit(u)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="danger"
-                    onClick={() => handleDeleteUser(u._id)}
-                  >
-                    Delete
-                  </Button>
-                </td>
               </tr>
-            ))}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody>
+              {paginatedData.map((u, idx) => (
+                <tr key={u._id || idx}>
+                  <td>{(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}</td>
+                  {activeTab === "student" && (
+                    <>
+                      <td>{u.name}</td>
+                      <td>{u.fatherName}</td>
+                      <td>{u.rollNo}</td>
+                      <td>{u.department}</td>
+                      <td>{u.dob}</td>
+                      <td>{u.gender}</td>
+                      <td>
+                        {u.profileImage && (
+                          <Image
+                            src={u.profileImage}
+                            style={{ width: 40, height: 40 }}
+                            rounded
+                          />
+                        )}
+                      </td>
+                    </>
+                  )}
+                  {activeTab === "teacher" && (
+                    <>
+                      <td>{u.name}</td>
+                      <td>{u.email}</td>
+                      <td>{u.phone}</td>
+                      <td>{u.department}</td>
+                      <td>{u.position}</td>
+                      <td>
+                        {u.profileImage && (
+                          <Image
+                            src={u.profileImage}
+                            style={{ width: 40, height: 40 }}
+                            rounded
+                          />
+                        )}
+                      </td>
+                    </>
+                  )}
+                  {activeTab === "admin" && (
+                    <>
+                      <td>{u.fullName}</td>
+                      <td>{u.email}</td>
+                      <td>{u.phone}</td>
+                      <td>{u.employeeId}</td>
+                      <td>{u.department}</td>
+                      <td>
+                        {u.profileImage && (
+                          <Image
+                            src={u.profileImage}
+                            style={{ width: 40, height: 40 }}
+                            rounded
+                          />
+                        )}
+                      </td>
+                    </>
+                  )}
+                  <td>
+                    <Button
+                      size="sm"
+                      variant="info"
+                      className="me-2 btn-3d"
+                      onClick={() => handleEdit(u)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="danger"
+                      className="btn-3d"
+                      onClick={() => handleDeleteUser(u._id)}
+                    >
+                      Delete
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+          {totalPages > 1 && (
+            <Pagination className="justify-content-center">
+              <Pagination.Prev
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => p - 1)}
+              />
+              <Pagination.Item active>{currentPage}</Pagination.Item>
+              <Pagination.Next
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((p) => p + 1)}
+              />
+            </Pagination>
+          )}
+        </>
       )}
     </div>
   );

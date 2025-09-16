@@ -1,0 +1,45 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+
+.users-page {
+  font-family: "Poppins", sans-serif;
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, #6a11cb, #2575fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+}
+
+.table-gradient {
+  background: linear-gradient(90deg, #6a11cb, #2575fc);
+  color: #fff;
+}
+
+.btn-3d {
+  background: linear-gradient(90deg, #ff9966, #ff5e62);
+  border: none;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-3d:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.25);
+}
+
+.form-3d {
+  background: #f9f9f9;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+.form-3d:hover {
+  transform: translateY(-2px);
+}
+
+.table-3d tbody tr:hover {
+  transform: scale(1.01);
+  transition: transform 0.2s;
+  background: #f0f8ff;
+}

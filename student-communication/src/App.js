@@ -6,8 +6,9 @@ const path = require("path");
 const fs = require("fs");
 
 const app = express();
-const PORT = 5001;
+const PORT = 5003;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
@@ -31,6 +32,21 @@ mongoose
     process.exit(1);
   });
 
+// ----------------- SCHEMAS ------------------
+
+// Assignment submission schema
+const submissionSchema = new mongoose.Schema({
+  title: String,
+  subject: String,
+  teacher: String,
+  description: String,
+  files: [String],
+  submittedAt: { type: Date, default: Date.now },
+});
+
+const Submission = mongoose.model("Submission", submissionSchema);
+
+// Message schema
 const messageSchema = new mongoose.Schema(
   {
     sender: String,
@@ -46,16 +62,50 @@ const messageSchema = new mongoose.Schema(
 
 const Message = mongoose.model("Message", messageSchema);
 
+// ----------------- ROUTES ------------------
+
+// Test API
 app.get("/", (req, res) => res.send("✅ API running"));
+
+// ----------- ASSIGNMENT SUBMISSIONS -----------
+
+// Get all submissions
+app.get("/api/submissions", async (req, res) => {
+  try {
+    const submissions = await Submission.find().sort({ submittedAt: -1 });
+    res.json(submissions);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Submit assignment
+app.post("/api/submissions", upload.array("files"), async (req, res) => {
+  try {
+    const { title, subject, teacher, description } = req.body;
+    const files = (req.files || []).map((f) => f.filename);
+    const newSubmission = new Submission({ title, subject, teacher, description, files });
+    const saved = await newSubmission.save();
+    res.status(201).json(saved);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ----------- MESSAGES / COMMUNICATION -----------
 
 // Fetch all messages
 app.get("/api/messages", async (req, res) => {
-  const msgs = await Message.find().sort({ createdAt: -1 });
-  res.json(msgs);
+  try {
+    const msgs = await Message.find().sort({ createdAt: -1 });
+    res.json(msgs);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Post new message
-app.post("/api/messages", upload.array("attachments"), async (req, res) => { 
+app.post("/api/messages", upload.array("attachments"), async (req, res) => {
   try {
     const { sender, receiver, subject, message } = req.body;
     if (!receiver || !subject || !message) {
@@ -76,7 +126,8 @@ app.post("/api/messages", upload.array("attachments"), async (req, res) => {
   }
 });
 
-// Static for attachments
+// Serve uploaded files
 app.use("/uploads", express.static(uploadDir));
 
+// ----------------- START SERVER ------------------
 app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));

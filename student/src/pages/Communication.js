@@ -149,7 +149,19 @@ export default function Communication() {
   const [query, setQuery] = useState("");
   const [detail, setDetail] = useState(null);
 
+<<<<<<< HEAD
+  // Fetch messages from backend
+  useEffect(() => {
+    fetch("http://localhost:5003/api/messages")
+      .then((res) => res.json())
+      .then((data) => setMessages(data))
+      .catch((err) => console.error("Error fetching:", err));
+  }, []);
+
+  const toggleRead = (id) =>
+=======
   const toggleRead = (id) => {
+>>>>>>> b9e9910604202d8464670d98ae7e9c7d2b0a12aa
     setMessages((msgs) =>
       msgs.map((m) => (m.id === id ? { ...m, read: !m.read } : m))
     );
@@ -186,10 +198,32 @@ export default function Communication() {
     [messages]
   );
 
+<<<<<<< HEAD
+  const handleSendMessage = async (newMsg) => {
+    const formData = new FormData();
+    Object.keys(newMsg).forEach((k) => {
+      if (k !== "attachments") formData.append(k, newMsg[k]);
+    });
+    (newMsg.attachments || []).forEach((file) => formData.append("attachments", file));
+
+    const res = await fetch("http://localhost:5003/api/messages", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
+    if (data.success) {
+      setMessages([data.data, ...messages]);
+      alert("Message sent successfully!");
+      setShowContactForm(false);
+    } else {
+      alert("Error sending message");
+    }
+=======
   const handleSendMessage = (newMsg) => {
     setMessages([newMsg, ...messages]);
     alert("Message sent successfully!");
     setShowContactForm(false); // go back to Inbox after sending
+>>>>>>> b9e9910604202d8464670d98ae7e9c7d2b0a12aa
   };
 
   if (showContactForm) {
@@ -328,7 +362,11 @@ export default function Communication() {
                     <ul>
                       {detail.attachments.map((a, i) => (
                         <li key={i}>
+<<<<<<< HEAD
+                          <a href={`http://localhost:5003${a.url}`} target="_blank" rel="noreferrer">
+=======
                           <a href={a.url} target="_blank" rel="noreferrer">
+>>>>>>> b9e9910604202d8464670d98ae7e9c7d2b0a12aa
                             {a.name}
                           </a>
                         </li>
