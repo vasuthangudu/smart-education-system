@@ -1,7 +1,10 @@
 {
   "name": "src",
   "version": "1.0.0",
+<<<<<<< HEAD
+=======
   "description": "",
+>>>>>>> bef131e754430524d325b1cbae6a7f19c286e511
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,11 +12,18 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+<<<<<<< HEAD
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+=======
   "dependencies": {
     "@fontsource/poppins": "^5.2.6",
     "bootstrap": "^5.3.8",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "mongoose": "^8.18.1"
+>>>>>>> bef131e754430524d325b1cbae6a7f19c286e511
   }
 }
