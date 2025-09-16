@@ -14,6 +14,7 @@ import Login from "./pages/Login";
 import Studentattendance from "./pages/Studentattendance";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import Communication from "./pages/Communication";
 
 function App() {
   const [loggedInAdmin, setLoggedInAdmin] = useState(null);
@@ -65,6 +66,7 @@ function App() {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/users" element={<Users />} />
                 <Route path="/attendance" element={<Studentattendance />} />
+                <Route path="/communication" element={<Communication/>} />
                 <Route path="/courses" element={<Courses />} />
                 <Route path="/exams" element={<Exams />} />
                 <Route path="/notifications" element={<Notifications />} />

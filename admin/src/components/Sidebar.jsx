@@ -13,7 +13,9 @@ function Sidebar({ setLoggedInAdmin, isMobile, sidebarOpen, setSidebarOpen }) {
     { path: "/attendance", label: "Attendance", icon: "bi-clipboard-check" },
     { path: "/courses", label: "Courses", icon: "bi-book" },
     { path: "/exams", label: "Exams", icon: "bi-pencil-square" },
-    { path: "/notifications", label: "Notifications", icon: "bi-bell" },
+    { path: "/notifications", label: "Communication", icon: "bi-bell" },
+    { path: "/Communication", label: "Notifivation", icon: "bi-bell" },
+
     { path: "/settings", label: "Settings", icon: "bi-gear" },
     { path: "/profile", label: "Profile", icon: "bi-person-circle" },
   ];

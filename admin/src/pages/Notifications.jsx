@@ -58,7 +58,7 @@ export default function AdminNotifications() {
     <div className="container my-4">
       <div className="card shadow p-3">
         <h3 className="mb-4 text-primary">
-          <i className="bi bi-bell-fill me-2"></i>Admin Notifications
+          <i className="bi bi-bell-fill me-2"></i>Admin Communication
         </h3>
 
         {/* Messages List */}
