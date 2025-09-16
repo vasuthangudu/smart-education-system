@@ -7,7 +7,6 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import MyCourses from "./pages/MyCourses";
 import Assignments from "./pages/Assignments";
-import Progress from "./pages/Progress";
 import Communication from "./pages/Communication";
 import Notifications from "./pages/Notifications";
 import StudentLogin from "./pages/StudentLogin";
@@ -48,7 +47,6 @@ export default function App() {
             <Route path="/courses" element={<MyCourses />} />
               <Route path="/exam" element={<Exam />} />
             <Route path="/assignments" element={<Assignments />} />
-            <Route path="/progress" element={<Progress />} />
             <Route path="/communication" element={<Communication />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="*" element={<Navigate to="/login" />} />

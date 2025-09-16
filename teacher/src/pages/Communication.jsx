@@ -1,18 +1,11 @@
-<<<<<<< HEAD
 // Communication.jsx
-=======
->>>>>>> b9e9910604202d8464670d98ae7e9c7d2b0a12aa
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-<<<<<<< HEAD
-const API = "http://localhost:5005/api/messages";
-=======
 const API_URL = "http://localhost:5005/api/messages";
 const ANNOUNCE_URL = "http://127.0.0.1:5004/api/announcements";
 const EVENTS_URL = "http://localhost:5004/api/events";
->>>>>>> b9e9910604202d8464670d98ae7e9c7d2b0a12aa
 
 function ContactForm({ onSend, onBack, editingMsg, onUpdate }) {
   const [sender, setSender] = useState("Teacher");
@@ -27,28 +20,6 @@ function ContactForm({ onSend, onBack, editingMsg, onUpdate }) {
     e.preventDefault();
     if (!receiver || !subject || !message) return alert("Please fill all fields");
 
-<<<<<<< HEAD
-    try {
-      const formData = new FormData();
-      formData.append("sender", "student123"); // Change as needed
-      formData.append("receiver", receiver);
-      formData.append("subject", subject);
-      formData.append("message", message);
-      attachments.forEach((file) => formData.append("attachments", file));
-
-      const res = await axios.post(API, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      onSend(res.data);
-      setReceiver("");
-      setSubject("");
-      setMessage("");
-      setAttachments([]);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to send message");
-=======
     const msgData = {
       sender,
       receiver,
@@ -67,9 +38,12 @@ function ContactForm({ onSend, onBack, editingMsg, onUpdate }) {
         const res = await axios.post(API_URL, msgData);
         onSend(res.data);
       }
+      setReceiver("");
+      setSubject("");
+      setMessage("");
+      setAttachments([]);
     } catch (err) {
       alert("Failed: " + err.message);
->>>>>>> b9e9910604202d8464670d98ae7e9c7d2b0a12aa
     }
   };
 
@@ -77,22 +51,10 @@ function ContactForm({ onSend, onBack, editingMsg, onUpdate }) {
     <div className="card p-3 mb-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h5>{editingMsg ? "✏️ Edit Message" : "📩 Contact"}</h5>
-        <button className="btn btn-sm btn-secondary" onClick={onBack}>
-          Back
-        </button>
+        <button className="btn btn-sm btn-secondary" onClick={onBack}>Back</button>
       </div>
       <form onSubmit={handleSubmit}>
         <div className="mb-2">
-<<<<<<< HEAD
-          <label className="form-label">Send To</label>
-          <select
-            className="form-select"
-            value={receiver}
-            onChange={(e) => setReceiver(e.target.value)}
-            required
-          >
-            <option value="">Select</option>
-=======
           <label className="form-label">Sender</label>
           <select className="form-select" value={sender} onChange={(e) => setSender(e.target.value)}>
             <option value="Teacher">Teacher</option>
@@ -100,8 +62,8 @@ function ContactForm({ onSend, onBack, editingMsg, onUpdate }) {
         </div>
         <div className="mb-2">
           <label className="form-label">Send To</label>
-          <select className="form-select" value={receiver} onChange={(e) => setReceiver(e.target.value)}>
->>>>>>> b9e9910604202d8464670d98ae7e9c7d2b0a12aa
+          <select className="form-select" value={receiver} onChange={(e) => setReceiver(e.target.value)} required>
+            <option value="">Select</option>
             <option value="Admin">Admin</option>
             <option value="Student">Student</option>
           </select>
@@ -118,9 +80,7 @@ function ContactForm({ onSend, onBack, editingMsg, onUpdate }) {
           <label className="form-label">Attachments (optional)</label>
           <input type="file" multiple className="form-control" onChange={handleFileChange} />
         </div>
-        <button type="submit" className="btn btn-primary mt-2">
-          {editingMsg ? "Update" : "Send"}
-        </button>
+        <button type="submit" className="btn btn-primary mt-2">{editingMsg ? "Update" : "Send"}</button>
       </form>
     </div>
   );
@@ -128,57 +88,13 @@ function ContactForm({ onSend, onBack, editingMsg, onUpdate }) {
 
 export default function Communication() {
   const [messages, setMessages] = useState([]);
-<<<<<<< HEAD
-  const [showContactForm, setShowContactForm] = useState(false);
-=======
   const [announcements, setAnnouncements] = useState([]);
   const [events, setEvents] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingMsg, setEditingMsg] = useState(null);
->>>>>>> b9e9910604202d8464670d98ae7e9c7d2b0a12aa
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
 
-<<<<<<< HEAD
-  // Fetch messages from backend
-  const fetchMessages = async () => {
-    try {
-      const res = await axios.get(API);
-      setMessages(res.data);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to fetch messages");
-    }
-  };
-
-  useEffect(() => {
-    fetchMessages();
-  }, []);
-
-  const toggleRead = async (id) => {
-    const msg = messages.find((m) => m._id === id);
-    if (!msg) return;
-    try {
-      await axios.patch(`${API}/${id}`, { read: !msg.read });
-      setMessages((prev) =>
-        prev.map((m) => (m._id === id ? { ...m, read: !m.read } : m))
-      );
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const togglePin = async (id) => {
-    const msg = messages.find((m) => m._id === id);
-    if (!msg) return;
-    try {
-      await axios.patch(`${API}/${id}`, { pinned: !msg.pinned });
-      setMessages((prev) =>
-        prev.map((m) => (m._id === id ? { ...m, pinned: !m.pinned } : m))
-      );
-    } catch (err) {
-      console.error(err);
-=======
   useEffect(() => {
     fetchMessages();
     fetchAnnouncements();
@@ -233,7 +149,6 @@ export default function Communication() {
       if (res.data.success) setMessages((msgs) => msgs.filter((m) => m._id !== id));
     } catch (err) {
       alert("Failed to delete: " + err.message);
->>>>>>> b9e9910604202d8464670d98ae7e9c7d2b0a12aa
     }
   };
 
@@ -247,27 +162,14 @@ export default function Communication() {
       );
     if (sortBy === "newest") list.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
     if (sortBy === "oldest") list.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
-<<<<<<< HEAD
-    if (sortBy === "priority")
-      list.sort((a, b) => (a.priority === "Urgent" ? -1 : 1));
-=======
->>>>>>> b9e9910604202d8464670d98ae7e9c7d2b0a12aa
     return list;
   }, [messages, query, sortBy]);
 
-<<<<<<< HEAD
-  const unreadCount = useMemo(() => messages.filter((m) => !m.read).length, [messages]);
-
-  const handleSendMessage = (newMsg) => {
-    setMessages([newMsg, ...messages]);
-    setShowContactForm(false);
-=======
   const handleSend = (msg) => {
     setMessages([msg, ...messages]);
     setShowForm(false);
     setEditingMsg(null);
     alert("Message sent!");
->>>>>>> b9e9910604202d8464670d98ae7e9c7d2b0a12aa
   };
 
   const handleUpdate = (msg) => {
@@ -292,20 +194,11 @@ export default function Communication() {
 
   return (
     <div className="container my-4">
-      {/* MESSAGES */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h3>💬 Inbox</h3>
         <div>
-<<<<<<< HEAD
-          <span className="badge bg-primary me-2">Unread: {unreadCount}</span>
-          <button className="btn btn-sm btn-success" onClick={() => setShowContactForm(true)}>
-            Contact Admin / Student
-=======
           <span className="badge bg-primary me-2">Unread: {messages.filter((m) => !m.read).length}</span>
-          <button className="btn btn-sm btn-success" onClick={() => setShowForm(true)}>
-            Contact
->>>>>>> b9e9910604202d8464670d98ae7e9c7d2b0a12aa
-          </button>
+          <button className="btn btn-sm btn-success" onClick={() => setShowForm(true)}>Contact</button>
         </div>
       </div>
 
@@ -320,30 +213,6 @@ export default function Communication() {
         />
         <select
           className="form-select form-select-sm"
-<<<<<<< HEAD
-          value={senderFilter}
-          onChange={(e) => setSenderFilter(e.target.value)}
-        >
-          <option>All</option>
-          <option>Admin</option>
-          <option>Student</option>
-        </select>
-        <select
-          className="form-select form-select-sm"
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
-        >
-          <option>All</option>
-          <option>Announcement</option>
-          <option>Assignment</option>
-          <option>Exam</option>
-          <option>Event</option>
-          <option>Query</option>
-        </select>
-        <select
-          className="form-select form-select-sm"
-=======
->>>>>>> b9e9910604202d8464670d98ae7e9c7d2b0a12aa
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
         >
@@ -392,24 +261,16 @@ export default function Communication() {
           ))}
         </div>
 
-        {/* SIDEBAR: Announcements & Events */}
         <div className="col-lg-4">
           <div className="card p-3 mb-3">
             <h6>📢 Announcements</h6>
             <ul className="list-unstyled">
-<<<<<<< HEAD
-              {messages.filter((m) => m.pinned).map((m) => (
-                <li key={m._id} className="mb-2">
-                  <strong>{m.subject}</strong>
-                  <div className="small text-muted">{new Date(m.dateTime).toLocaleString()}</div>
-=======
               {announcements.map((a) => (
                 <li key={a._id} className="mb-2">
                   <strong>{a.message}</strong>
                   <div className="small text-muted">
                     {a.audience} • {new Date(a.date).toLocaleDateString()}
                   </div>
->>>>>>> b9e9910604202d8464670d98ae7e9c7d2b0a12aa
                 </li>
               ))}
               {announcements.length === 0 && <div className="small text-muted">No announcements</div>}
@@ -430,58 +291,6 @@ export default function Communication() {
           </div>
         </div>
       </div>
-<<<<<<< HEAD
-
-      {/* Message Modal */}
-      {detail && (
-        <div className="modal fade show d-block" tabIndex="-1" style={{ background: "rgba(0,0,0,0.4)" }}>
-          <div className="modal-dialog modal-lg">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5>{detail.subject}</h5>
-                <small className="text-muted ms-3">
-                  {detail.sender} • {new Date(detail.dateTime).toLocaleString()}
-                </small>
-                <button className="btn-close" onClick={() => setDetail(null)}></button>
-              </div>
-              <div className="modal-body">
-                <p>{detail.message}</p>
-                {detail.attachments.length > 0 && (
-                  <div>
-                    <h6>Attachments:</h6>
-                    <ul>
-                      {detail.attachments.map((a, i) => (
-                        <li key={i}>
-                          <a href={`http://localhost:5005${a.url}`} target="_blank" rel="noreferrer">
-                            {a.name}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                <h6>Replies:</h6>
-                <ul>
-                  {detail.replies.map((r) => (
-                    <li key={r._id || r.id}>
-                      <strong>{r.sender}</strong>: {r.message}{" "}
-                      <span className="small text-muted">({new Date(r.dateTime).toLocaleString()})</span>
-                    </li>
-                  ))}
-                  {detail.replies.length === 0 && <li className="small text-muted">No replies yet.</li>}
-                </ul>
-              </div>
-              <div className="modal-footer">
-                <button className="btn btn-secondary" onClick={() => setDetail(null)}>
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-=======
->>>>>>> b9e9910604202d8464670d98ae7e9c7d2b0a12aa
     </div>
   );
 }

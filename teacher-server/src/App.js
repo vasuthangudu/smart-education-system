@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-// App.js (Merged Backend)
+
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
@@ -232,5 +231,4 @@ app.patch("/api/messages/:id", async (req, res) => {
 // ====================
 // ==== Start Server ====
 app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
-=======
->>>>>>> b9e9910604202d8464670d98ae7e9c7d2b0a12aa
+

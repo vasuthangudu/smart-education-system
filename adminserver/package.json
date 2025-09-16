@@ -1,5 +1,5 @@
 {
-  "name": "admin-server",
+  "name": "adminserver",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

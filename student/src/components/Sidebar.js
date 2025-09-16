@@ -71,7 +71,7 @@ export default function Sidebar() {
         <Link
           to="/exam"
           className={`d-block px-3 py-2 text-decoration-none rounded mb-1 ${
-            isActive("/courses") ? "bg-primary text-white" : "text-light"
+            isActive("/exam") ? "bg-primary text-white" : "text-light"
           }`}
         >
           <i className="bi bi-book me-2"></i> Exam
@@ -87,14 +87,7 @@ export default function Sidebar() {
           <i className="bi bi-pencil-square me-2"></i> Assignments
         </Link>
 
-        <Link
-          to="/progress"
-          className={`d-block px-3 py-2 text-decoration-none rounded mb-1 ${
-            isActive("/progress") ? "bg-primary text-white" : "text-light"
-          }`}
-        >
-          <i className="bi bi-bar-chart me-2"></i> Progress
-        </Link>
+     
 
         <Link
           to="/communication"
