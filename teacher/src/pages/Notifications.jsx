@@ -1,46 +1,18 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-export default function Notifications() {
+const API_ADMIN = "http://localhost:5007/api/messages"; // Admin messages
+const API_STUDENT = "http://localhost:5003/api/messages"; // Student messages
+
+export default function TeacherNotifications() {
   const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Fetch messages from both URLs
-  useEffect(() => {
-    const fetchMessages = async () => {
-      try {
-        // Original messages
-        const res1 = await fetch("http://localhost:5001/api/messages");
-        const data1 = await res1.json();
-
-        // Admin → Teacher messages from additional URL
-        const res2 = await fetch("http://localhost:5007/api/messages");
-        const data2 = await res2.json();
-
-        // Filter only Admin → Teacher messages from second URL
-        const adminTeacherMsgs = data2.filter(
-          (msg) =>
-            msg.sender?.trim().toLowerCase() === "admin" &&
-            msg.receiver?.trim().toLowerCase() === "teacher"
-        );
-
-        // Merge with existing messages
-        const merged = [...data1, ...adminTeacherMsgs].sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
-
-        setMessages(merged);
-      } catch (err) {
-        console.error("Error fetching messages:", err);
-      }
-    };
-
-    fetchMessages();
-  }, []);
-
-  // Read/Pin/Acknowledge state maps
+  // Read / Pin / Acknowledge state maps
   const [readMap, setReadMap] = useState({});
   const [pinnedMap, setPinnedMap] = useState({});
-  const [likedMap, setLikedMap] = useState({});
+  const [ackMap, setAckMap] = useState({});
 
   const unreadCount = useMemo(
     () => messages.filter((m) => !readMap[m._id]).length,
@@ -49,43 +21,93 @@ export default function Notifications() {
 
   const toggleRead = (id) => setReadMap((m) => ({ ...m, [id]: !m[id] }));
   const togglePin = (id) => setPinnedMap((m) => ({ ...m, [id]: !m[id] }));
-  const toggleLike = (id) => setLikedMap((m) => ({ ...m, [id]: !m[id] }));
+  const toggleAck = (id) => setAckMap((m) => ({ ...m, [id]: !m[id] }));
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        setLoading(true);
+        const [resAdmin, resStudent] = await Promise.all([
+          fetch(API_ADMIN),
+          fetch(API_STUDENT),
+        ]);
+
+        const dataAdmin = await resAdmin.json();
+        const dataStudent = await resStudent.json();
+
+        // Filter only messages for Teacher
+        const teacherMsgs = [
+          ...dataAdmin,
+          ...dataStudent,
+        ].filter(
+          (msg) =>
+            msg.receiver?.toLowerCase() === "teacher" ||
+            msg.receiver === "Mr. Smith (Teacher)"
+        );
+
+        // Sort by newest first
+        teacherMsgs.sort(
+          (a, b) => new Date(b.createdAt || b.dateTime) - new Date(a.createdAt || a.dateTime)
+        );
+
+        setMessages(teacherMsgs);
+        setError(null);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to fetch messages");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMessages();
+    const interval = setInterval(fetchMessages, 10000); // auto-refresh every 10s
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="container my-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h3>📬 Teacher Messages</h3>
+        <h3>📬 Teacher Notifications</h3>
         <span className="badge bg-primary">Unread: {unreadCount}</span>
       </div>
 
-      {messages.length === 0 ? (
-        <p>No messages for teachers.</p>
+      {loading ? (
+        <p>Loading messages...</p>
+      ) : error ? (
+        <p className="text-danger">{error}</p>
+      ) : messages.length === 0 ? (
+        <p>No messages for teacher.</p>
       ) : (
         messages.map((msg) => {
           const isUnread = !readMap[msg._id];
           const isPinned = !!pinnedMap[msg._id];
-          const isLiked = !!likedMap[msg._id];
+          const isAck = !!ackMap[msg._id];
 
           return (
             <div
               key={msg._id}
-              className={`card mb-2 ${isUnread ? "border-primary" : ""}`}
+              className={`card mb-3 ${isUnread ? "border-primary" : ""}`}
             >
               <div className="card-body d-flex justify-content-between align-items-start">
                 <div>
                   <h6 style={{ fontWeight: isUnread ? 700 : 500 }}>
                     🎓 {msg.subject || "(No Subject)"}
                   </h6>
-                  <p className="mb-1">{msg.message}</p>
+                  <p>{msg.message}</p>
                   <small className="text-muted">
-                    From: {msg.sender} • {msg.receiver} •{" "}
-                    {new Date(msg.createdAt).toLocaleString()}
+                    From: {msg.sender} • To: {msg.receiver} •{" "}
+                    {new Date(msg.createdAt || msg.dateTime).toLocaleString()}
                   </small>
 
                   {/* Attachments */}
                   <div className="mt-2">
                     {msg.attachments?.map((att) => {
-                      const url = att.url || `http://localhost:5007${att.path}`;
+                      const url =
+                        att.url ||
+                        (att.path
+                          ? `http://localhost:5007${att.path}`
+                          : "#");
                       return (
                         <a
                           key={att._id || att.name}
@@ -101,6 +123,7 @@ export default function Notifications() {
                   </div>
                 </div>
 
+                {/* Action buttons */}
                 <div className="text-end">
                   <button
                     className="btn btn-sm btn-outline-secondary me-1"
@@ -118,11 +141,11 @@ export default function Notifications() {
                   </button>
                   <button
                     className={`btn btn-sm ${
-                      isLiked ? "btn-warning" : "btn-outline-warning"
+                      isAck ? "btn-warning" : "btn-outline-warning"
                     }`}
-                    onClick={() => toggleLike(msg._id)}
+                    onClick={() => toggleAck(msg._id)}
                   >
-                    {isLiked ? "Acknowledged ✓" : "Acknowledge"}
+                    {isAck ? "Acknowledged ✓" : "Acknowledge"}
                   </button>
                 </div>
               </div>
