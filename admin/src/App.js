@@ -5,11 +5,8 @@ import Topbar from "./components/Topbar";
 import Footer from "./components/Footer";
 import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
-import Students from "./pages/Students";
 import Courses from "./pages/Courses";
-import Timetable from "./pages/Timetable";
 import Exams from "./pages/Exams";
-import Reports from "./pages/Reports";
 import Notifications from "./pages/Notifications";
 import AdminSettings from "./pages/Settings";
 import Profile from "./pages/Profile";
@@ -67,12 +64,9 @@ function App() {
               <>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/users" element={<Users />} />
-                <Route path="/students" element={<Students />} />
                 <Route path="/attendance" element={<Studentattendance />} />
                 <Route path="/courses" element={<Courses />} />
-                <Route path="/timetable" element={<Timetable />} />
                 <Route path="/exams" element={<Exams />} />
-                <Route path="/reports" element={<Reports />} />
                 <Route path="/notifications" element={<Notifications />} />
                 <Route path="/settings" element={<AdminSettings />} />
                 <Route path="/profile" element={<Profile loggedInAdmin={loggedInAdmin} />} />

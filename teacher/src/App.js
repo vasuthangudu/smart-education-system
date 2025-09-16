@@ -6,11 +6,10 @@ import Topbar from "./components/Topbar";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Courses from "./pages/Courses";
-import Timetable from "./pages/Timetable";
 import Assignments from "./pages/Assignments";
 import Exams from "./pages/Exams";
-import StudentReports from "./pages/StudentReports";
 import Communication from "./pages/Communication";
+import Attendance from "./pages/Attendance";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./index.css";
@@ -121,7 +120,6 @@ export default function App() {
               <Route path="/attendance" element={<Attendance/>} />
               <Route path="/notifications" element={<Notifications/>} />
 
-              <Route path="/timetable" element={<Timetable />} />
               <Route path="/assignments" element={<Assignments />} />
               <Route path="/exams" element={<Exams />} />
               
