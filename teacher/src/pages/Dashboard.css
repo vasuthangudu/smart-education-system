@@ -1,0 +1,41 @@
+/* Gradient Icons */
+.gradient-blue { background: linear-gradient(45deg, #6366f1, #60a5fa); -webkit-background-clip: text; color: transparent; }
+.gradient-green { background: linear-gradient(45deg, #22c55e, #4ade80); -webkit-background-clip: text; color: transparent; }
+.gradient-purple { background: linear-gradient(45deg, #9333ea, #a78bfa); -webkit-background-clip: text; color: transparent; }
+.gradient-orange { background: linear-gradient(45deg, #f97316, #fb923c); -webkit-background-clip: text; color: transparent; }
+
+.stat-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+}
+.stat-card:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Chart Cards */
+.chart-card {
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #ffffff, #f9fafb);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.chart-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* 3D Hover Effect for List Items */
+.hover-3d {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-3d:hover {
+  transform: perspective(1000px) rotateX(4deg) rotateY(-4deg);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Table Styling */
+.table-hover tbody tr:hover {
+  background: linear-gradient(90deg, #eef2ff, #e0f2fe);
+  transform: scale(1.01);
+}
