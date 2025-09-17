@@ -1,79 +1,168 @@
+// server.js
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import { fileURLToPath } from "url";
+import dotenv from "dotenv";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+dotenv.config();
 
 const app = express();
-const PORT = 7002;
+const PORT = process.env.PORT || 7002;
+const MONGO_URI =
+  process.env.MONGO_URI || "mongodb://127.0.0.1:27017/assignments_db";
 
-app.use(cors());
-app.use(express.json());
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// Ensure uploads folder exists
+const UPLOADS_DIR = path.join(process.cwd(), "uploads");
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR);
 
-mongoose
-  .connect("mongodb://127.0.0.1:27017/assignmentsDB", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("✅ MongoDB Connected"))
-  .catch((err) => console.error("❌ MongoDB Error:", err));
-
-const assignmentSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  subject: { type: String, required: true },
-  teacher: { type: String, default: "Teacher" },
-  description: String,
-  files: [String],
-  submittedAt: { type: Date, default: Date.now },
-});
-
-const Assignment = mongoose.model("Assignment", assignmentSchema);
-
-const uploadDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
-
+// Multer storage
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => cb(null, Date.now() + "_" + file.originalname),
+  destination: function (req, file, cb) {
+    cb(null, UPLOADS_DIR);
+  },
+  filename: function (req, file, cb) {
+    // Prepend timestamp to avoid collisions and sanitize filename
+    const safeName = `${Date.now()}-${file.originalname.replace(/\s+/g, "_")}`;
+    cb(null, safeName);
+  },
 });
 const upload = multer({ storage });
 
+// Middlewares
+app.use(cors());
+app.use(express.json());
+app.use("/uploads", express.static(UPLOADS_DIR));
+
+// ----- Mongoose model -----
+const assignmentSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true },
+    subject: { type: String, required: true },
+    description: String,
+    teacher: String,
+    dueDate: Date,
+    maxMarks: Number,
+    files: [String],
+  },
+  { timestamps: true }
+);
+
+const Assignment = mongoose.model("Assignment", assignmentSchema);
+
+// ----- Routes -----
+// GET all assignments
 app.get("/api/submissions", async (req, res) => {
   try {
-    const assignments = await Assignment.find().sort({ submittedAt: -1 });
+    const assignments = await Assignment.find().sort({ createdAt: -1 }).lean();
     res.json(assignments);
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch assignments" });
+    console.error("GET /api/submissions error:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
+// POST new assignment with files
 app.post("/api/submissions", upload.array("files"), async (req, res) => {
   try {
-    const { title, subject, teacher, description } = req.body;
-    const files = req.files ? req.files.map((f) => f.filename) : [];
-    if (!title || !subject)
-      return res.status(400).json({ error: "Title and Subject are required" });
+    const { title, subject, description, teacher, dueDate, maxMarks } = req.body;
+    if (!title || !subject) {
+      return res.status(400).json({ message: "Title and subject are required" });
+    }
+
+    const files = (req.files || []).map((f) => f.filename);
 
     const assignment = new Assignment({
       title,
       subject,
-      teacher: teacher || "Teacher",
       description,
+      teacher,
+      dueDate: dueDate ? new Date(dueDate) : null,
+      maxMarks: maxMarks ? Number(maxMarks) : 0,
       files,
     });
+
     await assignment.save();
-    res.status(201).json({ message: "Assignment saved successfully" });
+    res.status(201).json(assignment);
   } catch (err) {
-    res.status(500).json({ error: "Failed to save assignment" });
+    console.error("POST /api/submissions error:", err);
+    res.status(500).json({ message: "Failed to save assignment" });
   }
 });
 
-app.listen(PORT, () =>
-  console.log(`🚀 Server running at http://localhost:${PORT}`)
-);
+// GET single assignment
+app.get("/api/submissions/:id", async (req, res) => {
+  try {
+    const assignment = await Assignment.findById(req.params.id).lean();
+    if (!assignment) return res.status(404).json({ message: "Not found" });
+    res.json(assignment);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// PUT update assignment
+app.put("/api/submissions/:id", upload.array("files"), async (req, res) => {
+  try {
+    const { title, subject, description, teacher, dueDate, maxMarks } = req.body;
+    if (!title || !subject) {
+      return res.status(400).json({ message: "Title and subject are required" });
+    }
+
+    const existing = await Assignment.findById(req.params.id);
+    if (!existing) return res.status(404).json({ message: "Not found" });
+
+    const newFiles = (req.files || []).map((f) => f.filename);
+    const updatedFiles = [...existing.files, ...newFiles];
+
+    existing.title = title;
+    existing.subject = subject;
+    existing.description = description;
+    existing.teacher = teacher;
+    existing.dueDate = dueDate ? new Date(dueDate) : null;
+    existing.maxMarks = maxMarks ? Number(maxMarks) : 0;
+    existing.files = updatedFiles;
+
+    const updated = await existing.save();
+    res.json(updated);
+  } catch (err) {
+    console.error("PUT /api/submissions/:id error:", err);
+    res.status(500).json({ message: "Failed to update assignment" });
+  }
+});
+
+// DELETE assignment
+app.delete("/api/submissions/:id", async (req, res) => {
+  try {
+    const assignment = await Assignment.findById(req.params.id);
+    if (!assignment) return res.status(404).json({ message: "Not found" });
+
+    // Remove associated files
+    assignment.files.forEach((file) => {
+      const filePath = path.join(UPLOADS_DIR, file);
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    });
+
+    await assignment.deleteOne();
+    res.json({ message: "Assignment deleted" });
+  } catch (err) {
+    console.error("DELETE /api/submissions/:id error:", err);
+    res.status(500).json({ message: "Failed to delete assignment" });
+  }
+});
+
+// Connect to Mongo and start server
+mongoose
+  .connect(MONGO_URI)
+  .then(() => {
+    console.log("MongoDB connected");
+    app.listen(PORT, () =>
+      console.log(`Server running on http://localhost:${PORT}`)
+    );
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+  });
