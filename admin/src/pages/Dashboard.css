@@ -1,0 +1,48 @@
+.text-gradient {
+  background: linear-gradient(90deg, #6366f1, #9333ea);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, #6366f1 0%, #9333ea 100%);
+  color: white;
+  border-radius: 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.stat-card:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+}
+
+.hover-3d {
+  border-radius: 12px;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+.hover-3d:hover {
+  transform: perspective(600px) rotateY(5deg) rotateX(2deg) scale(1.02);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.table-gradient thead {
+  background: linear-gradient(90deg, #6366f1, #9333ea);
+  color: #fff;
+}
+.table-hover tbody tr:hover {
+  background-color: rgba(99, 102, 241, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.dashboard {
+  animation: fadeIn 1s ease-in-out;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
